@@ -1,0 +1,4 @@
+^C:\USERS\USER\SOURCE\REPOS\QTPOLYTABLE\HELLOQTCHILD.UI
+C:\Qt\5.15.2\msvc2019_64\bin\uic.exe .\HelloQtChild.ui -o "C:\Users\User\source\repos\QtPolyTable\\trash-x64\HelloQt\Debug NCAD\\ui_HelloQtChild.h"
+^C:\USERS\USER\SOURCE\REPOS\QTPOLYTABLE\HELLOQTCHILD.H
+C:\Qt\5.15.2\msvc2019_64\bin\moc.exe .\HelloQtChild.h -o "C:\Users\User\source\repos\QtPolyTable\\trash-x64\HelloQt\Debug NCAD\\moc_HelloQtChild.cpp"
