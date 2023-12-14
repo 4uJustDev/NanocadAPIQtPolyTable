@@ -2,12 +2,17 @@
 #include "HelloQtChild.h"
 #include <dbobjptr.h>
 
-Acad::ErrorStatus addToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity);
-
 HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
 {
   ui.setupUi(this);
-  //pPoly3d = new AcDb3dPolyline();
+  //m_addrres = NULL;
+  AcGePoint3d pt1(0, 0, 0), pt2(10, 0, 0), pt3(10, 10, 0), pt4(10, 10, 10);
+  m_points.append(pt1);
+  m_points.append(pt2);
+  m_points.append(pt3);
+  m_points.append(pt4);
+  //m_pPoly3d
+
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
 }
 
@@ -31,82 +36,133 @@ double HelloQtChild::getZCoordinate() const
     return ui.lineEdit_3->text().toDouble();
 }
 
+
+AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
+{
+    AcDb3dPolyline* pPoly3d = new AcDb3dPolyline(AcDb::k3dSimplePoly, points);
+    return HelloQtChild::PostToModelSpace(pPoly3d);
+}
+
 void deleteVertex()
 {
     ads_name polyName;
+
     ads_point pt;
-    if (acedEntSel(_T("\nВыберите a 3D-полилинию: "), polyName, pt) != RTNORM)
+
+    if (acedEntSel(_T("\nSelect a 3d polyline: "), polyName, pt) != RTNORM)
+
         return;
+
     AcDbObjectId polyId;
+
     acdbGetObjectId(polyId, polyName);
-    // получим полилинию как интеллектуальный указатель
+
+    // get the polyline in an autoptr
+
     AcDbObjectPointer<AcDb3dPolyline> pPoly(polyId, AcDb::kForRead);
+
     Acad::ErrorStatus es = pPoly.openStatus();
-    // если не открылась
+
+    // if it didn't open
+
     if (es != Acad::eOk)
     {
         if (es == Acad::eNotThatKindOfClass)
-            acutPrintf(_T("\nВы выбрали не 3D-полилинию."));
+
+            acutPrintf(_T("\nYou did not select a 3d polyline."));
+
         else
-            acutPrintf(_T("\nОшибка открытия примитива."));
+
+            acutPrintf(_T("\nError opening entity."));
+
         return;
 
     }
-    // Добавим все вершины к массиву AcDbObjectId  
+    // add each vertex to objectId array   
+
     AcDbObjectIdArray vertexArray;
+
     AcDbObjectIterator* pIter = pPoly->vertexIterator();
+
     for (pIter->start(); !pIter->done(); pIter->step())
+
         vertexArray.append(pIter->objectId());
+
     delete pIter;
-    // Указываем и находим вершину для удаления
+
+    // get vertex to delete   
+
     ACHAR prompt[256];
-    acutPrintf(prompt, _T("\nУкажите номер удаляемой вершины (1-%d): "), vertexArray.length());
+
+    acutPrintf(prompt, _T("\nSelect vertex to delete (1-%d): "),
+
+        vertexArray.length());
+
     int delVertex = -1;
+
     if (acedGetInt(prompt, &delVertex) != RTNORM)
+
         return;
+
     if (delVertex < 1 || delVertex > vertexArray.length())
     {
-        acutPrintf(_T("\nНедопустимый номер вершины."));
+        acutPrintf(_T("\nInvalid vertex number."));
+
         return;
     }
-    // Открываем вершину и удаляем её
-    AcDbObjectPointer<AcDbObject> pObj(vertexArray[delVertex - 1], AcDb::kForWrite);
+
+    AcDbObjectPointer<AcDbObject> pObj(vertexArray[delVertex - 1],
+
+        AcDb::kForWrite);
+
     if (pObj.openStatus() != Acad::eOk)
     {
-        acutPrintf(_T("\nОшибка открытия вершины: %d"), delVertex);
+        acutPrintf(_T("\nError opening vertex: %d"), delVertex);
+
         return;
     }
+
     pObj->erase();
 }
 
-Acad::ErrorStatus addToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity)
+AcDbObjectId HelloQtChild::PostToModelSpace(AcDbEntity* pEnt)
 {
+
+    // Get pointers to the block table
     AcDbBlockTable* pBlockTable;
-    AcDbBlockTableRecord* pSpaceRecord;
+    acdbHostApplicationServices()->workingDatabase()->getBlockTable(pBlockTable, AcDb::kForRead);
 
-    acdbHostApplicationServices()->workingDatabase()
-        ->getSymbolTable(pBlockTable, AcDb::kForRead);
+    // Get pointers that point to specific block table records (model space)
+    AcDbBlockTableRecord* pBlockTableRecord;
+    pBlockTable->getAt(ACDB_MODEL_SPACE, pBlockTableRecord, AcDb::kForWrite);
 
-    pBlockTable->getAt(ACDB_MODEL_SPACE, pSpaceRecord,
-        AcDb::kForWrite);
+    // Add an object of the ACDBline class to the block table record
+    AcDbObjectId entId;
+    pBlockTableRecord->appendAcDbEntity(entId, pEnt);
 
+    // Turn off the various objects of the graphical database
     pBlockTable->close();
-
-    pSpaceRecord->appendAcDbEntity(objId, pEntity);
-
-    pEntity->close();
-    pSpaceRecord->close();
-
-    return Acad::eOk;
+    pBlockTableRecord->close();
+    pEnt->close();
+    return entId;
 }
 
-Acad::ErrorStatus AddVertexToPolyline(AcDb3dPolyline* pPolyline, const AcGePoint3d& pnt)
+Acad::ErrorStatus HelloQtChild::AddVertexToPolyline(AcDbObjectId entId, AcGePoint3d pnt)
 {
-    if (pPolyline)
-    {
-        NcDb3dPolylineVertex* newVertex = new NcDb3dPolylineVertex(pnt);
 
-        pPolyline->appendVertex(newVertex);
+    if (entId)
+    {
+        AcDbEntity* pEnt;
+        acdbOpenAcDbEntity(pEnt, entId, AcDb::kForWrite);
+
+        AcDb3dPolyline* pPoly = AcDb3dPolyline::cast(pEnt);
+
+        NcDb3dPolylineVertex* newVertex = new NcDb3dPolylineVertex(pnt);
+        pPoly->appendVertex(newVertex);
+
+        pEnt->close();
+        pPoly->close();
+
         return Acad::eOk;
     }
     else
@@ -116,6 +172,7 @@ Acad::ErrorStatus AddVertexToPolyline(AcDb3dPolyline* pPolyline, const AcGePoint
     }
 }
 
+
 void HelloQtChild::addCoordinate()
 {
     double x = getXCoordinate();
@@ -124,16 +181,13 @@ void HelloQtChild::addCoordinate()
 
     try
     {
-        /*AcDbObjectId polyId;
+        AcGePoint3d poi(x, y, z);
+        m_points.append(poi);
 
-        if (pPoly3d == nullptr)
-        {
-            pPoly3d = new AcDb3dPolyline();
-        }*/
-        AcDbObjectId polyId;
-        pPoly3d = new AcDb3dPolyline();
-        AddVertexToPolyline(pPoly3d, AcGePoint3d(x, y, z));
-        addToModelSpace(polyId, pPoly3d);
+        AcDbObjectId polyline3dId;
+        polyline3dId = HelloQtChild::Create3dPolyline(m_points);
+        // Create a regular polygon (the center, the number
+
 
         ui.listWidget->addItem(QString("X: %1").arg(x));
         ui.listWidget->addItem(QString("Y: %1").arg(y));

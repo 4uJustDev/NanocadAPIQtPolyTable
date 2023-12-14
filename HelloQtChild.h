@@ -14,7 +14,15 @@ public:
   double getXCoordinate() const;
   double getYCoordinate() const;
   double getZCoordinate() const;
-  AcDb3dPolyline* pPoly3d;
+
+  AcDbObjectId* m_addrres;
+  AcGePoint3dArray m_points;
+  
+  // add a function to create a 3D polyline
+  static AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
+  static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
+  Acad::ErrorStatus HelloQtChild::AddVertexToPolyline(AcDbObjectId entId, AcGePoint3d ptBase);
+
 private slots:
   void addCoordinate();
 
