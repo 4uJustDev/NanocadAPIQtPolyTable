@@ -15,11 +15,11 @@ public:
   double getYCoordinate() const;
   double getZCoordinate() const;
 
-  AcDbObjectId* m_addrres;
+  AcDbObjectId m_addrres;
   AcGePoint3dArray m_points;
-  
+  NcDb3dPolyline* m_pPoly3d;
   // add a function to create a 3D polyline
-  static AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
+  AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
   static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
   Acad::ErrorStatus HelloQtChild::AddVertexToPolyline(AcDbObjectId entId, AcGePoint3d ptBase);
 

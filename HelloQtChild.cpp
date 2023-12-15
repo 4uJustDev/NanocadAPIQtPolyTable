@@ -11,7 +11,8 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
   m_points.append(pt2);
   m_points.append(pt3);
   m_points.append(pt4);
-  //m_pPoly3d
+
+  m_addrres = Create3dPolyline(m_points);
 
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
 }
@@ -39,8 +40,9 @@ double HelloQtChild::getZCoordinate() const
 
 AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
 {
-    AcDb3dPolyline* pPoly3d = new AcDb3dPolyline(AcDb::k3dSimplePoly, points);
-    return HelloQtChild::PostToModelSpace(pPoly3d);
+    m_pPoly3d = new AcDb3dPolyline(AcDb::k3dSimplePoly, points);
+
+    return HelloQtChild::PostToModelSpace(m_pPoly3d);
 }
 
 void deleteVertex()
@@ -181,11 +183,18 @@ void HelloQtChild::addCoordinate()
 
     try
     {
-        AcGePoint3d poi(x, y, z);
-        m_points.append(poi);
+        /*AcGePoint3d poi(x, y, z);
+        m_points.append(poi);*/
 
-        AcDbObjectId polyline3dId;
-        polyline3dId = HelloQtChild::Create3dPolyline(m_points);
+        AcDb3dPolyline* pEnt;
+        Acad::ErrorStatus es = acdbOpenObject(pEnt, m_addrres, AcDb::kForWrite, false);
+
+
+        pEnt->appendVertex(new NcDb3dPolylineVertex(AcGePoint3d(x, y, z)));
+
+        pEnt->close();
+        //AcDbObjectId polyline3dId;
+        //polyline3dId = HelloQtChild::Create3dPolyline(m_points);
         // Create a regular polygon (the center, the number
 
 
