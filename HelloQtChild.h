@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include "ui_HelloQtChild.h"
+#include "CustomTableWidget.h"
 
 class HelloQtChild : public QWidget
 {
@@ -11,13 +12,13 @@ public:
   HelloQtChild(QWidget *parent = nullptr);
   ~HelloQtChild();
 
-  double getXCoordinate() const;
-  double getYCoordinate() const;
-  double getZCoordinate() const;
+  AcGePoint3dArray getDataCoordinates() const;
 
   AcDbObjectId m_addrres;
   AcGePoint3dArray m_points;
   NcDb3dPolyline* m_pPoly3d;
+
+  CustomTableWidget* tableWidget;
   // add a function to create a 3D polyline
   AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
   static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);

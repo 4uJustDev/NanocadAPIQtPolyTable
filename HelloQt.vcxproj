@@ -111,9 +111,11 @@
       <Message>MOC HelloQtChild.h</Message>
       <Outputs>$(IntDir)\moc_HelloQtChild.cpp;%(Outputs)</Outputs>
     </CustomBuild>
+    <ClCompile Include="CustomTableWidget.cpp" />
     <ClCompile Include="HelloQtChild.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CustomTableWidget.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

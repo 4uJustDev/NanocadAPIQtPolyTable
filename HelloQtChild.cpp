@@ -1,40 +1,35 @@
 ﻿#include "stdafx.h"
 #include "HelloQtChild.h"
 #include <dbobjptr.h>
-
+#include "CustomTableWidget.h"
 HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
 {
   ui.setupUi(this);
-  //m_addrres = NULL;
-  AcGePoint3d pt1(0, 0, 0), pt2(10, 0, 0), pt3(10, 10, 0), pt4(10, 10, 10);
-  m_points.append(pt1);
-  m_points.append(pt2);
-  m_points.append(pt3);
-  m_points.append(pt4);
 
-  m_addrres = Create3dPolyline(m_points);
+  tableWidget = new CustomTableWidget(this);
+  ui.verticalLayout_2->addWidget(tableWidget);
 
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
 }
 
 HelloQtChild::~HelloQtChild() {}
 
-double HelloQtChild::getXCoordinate() const
+AcGePoint3dArray HelloQtChild::getDataCoordinates() const
 {
-    // Retrieve X coordinate from the QLineEdit or other widget
-    return ui.lineEdit->text().toDouble();
-}
+    AcGePoint3dArray arrayPnt;
+    QTableWidgetItem* a;
 
-double HelloQtChild::getYCoordinate() const
-{
-    // Retrieve Y coordinate from the QLineEdit or other widget
-    return ui.lineEdit_2->text().toDouble();
-}
-
-double HelloQtChild::getZCoordinate() const
-{
-    // Retrieve Z coordinate from the QLineEdit or other widget
-    return ui.lineEdit_3->text().toDouble();
+    for (int i = 0; i < tableWidget->rowCount(); i++) {
+        a = tableWidget->item(i, 0);
+        int x = a->text().toInt();
+        a = tableWidget->item(i, 1);
+        int y = a->text().toInt();
+        a = tableWidget->item(i, 2);
+        int z = a->text().toInt();
+        AcGePoint3d pnt(x, y, z);
+        arrayPnt.append(pnt);
+    }
+    return arrayPnt;
 }
 
 
@@ -177,34 +172,21 @@ Acad::ErrorStatus HelloQtChild::AddVertexToPolyline(AcDbObjectId entId, AcGePoin
 
 void HelloQtChild::addCoordinate()
 {
-    double x = getXCoordinate();
-    double y = getYCoordinate();
-    double z = getZCoordinate();
-
     try
     {
-        /*AcGePoint3d poi(x, y, z);
-        m_points.append(poi);*/
+        AcGePoint3dArray some_points = getDataCoordinates();
+
+        AcDbObjectId mId = Create3dPolyline(some_points);
 
         AcDb3dPolyline* pEnt;
-        Acad::ErrorStatus es = acdbOpenObject(pEnt, m_addrres, AcDb::kForWrite, false);
 
-
-        pEnt->appendVertex(new NcDb3dPolylineVertex(AcGePoint3d(x, y, z)));
+        Acad::ErrorStatus es = acdbOpenObject(pEnt, mId, AcDb::kForWrite, false);
 
         pEnt->close();
-        //AcDbObjectId polyline3dId;
-        //polyline3dId = HelloQtChild::Create3dPolyline(m_points);
-        // Create a regular polygon (the center, the number
 
-
-        ui.listWidget->addItem(QString("X: %1").arg(x));
-        ui.listWidget->addItem(QString("Y: %1").arg(y));
-        ui.listWidget->addItem(QString("Z: %1").arg(z));
-        ui.listWidget->addItem(QString("___________________________________________"));
     }
     catch (const std::exception& e)
     {
-        acutPrintf(_T("\nОшибка в главной функции."));
+        acutPrintf(_T("\nОшибка в главной функции: %s"), e.what());
     }
 }
