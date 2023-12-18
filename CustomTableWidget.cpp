@@ -18,55 +18,80 @@ CustomTableWidget::CustomTableWidget(QWidget* parent) : QTableWidget(parent)
 
 CustomTableWidget::~CustomTableWidget() {};
 
-void CustomTableWidget::keyPressEvent(QKeyEvent* event) {
-    if (event->matches(QKeySequence::Paste)) {
-        // Your paste logic using copiedText
-        QStringList table_row_data_list = copiedText.split("\n", QString::SkipEmptyParts);
+bool CustomTableWidget::event(QEvent* event)
+{
+    if (event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->matches(QKeySequence::Paste))
+        {
+            handlePasteShortcut();
+            return true;
+        }
+        else if (keyEvent->matches(QKeySequence::Copy))
+        {
+            handleCopyShortcut();
+            return true;
+        }
+    }
+    return QTableWidget::event(event);
+}
 
-        QList<QTableWidgetItem*> current_selected_items = selectedItems();
-        if (current_selected_items.isEmpty()) {
-            return;  // No cell selected to paste into
+void CustomTableWidget::handlePasteShortcut()
+{
+    QStringList table_row_data_list = copiedText.split("\n", QString::SkipEmptyParts);
+
+    QList<QTableWidgetItem*> current_selected_items = selectedItems();
+    if (current_selected_items.isEmpty())
+    {
+        return; // No cell selected to paste into
+    }
+
+    int startRow = current_selected_items.first()->row();
+    int startCol = current_selected_items.first()->column();
+
+    for (int i = 0; i < table_row_data_list.size() && (startRow + i) < rowCount(); ++i)
+    {
+        QStringList row_data_list = table_row_data_list.at(i).split("\t");
+        for (int j = 0; j < row_data_list.size() && (startCol + j) < columnCount(); ++j)
+        {
+            item(startRow + i, startCol + j)->setText(row_data_list.at(j));
+        }
+    }
+}
+
+void CustomTableWidget::handleCopyShortcut()
+{
+    copiedText = copyToClipboard();
+}
+
+QString CustomTableWidget::copyToClipboard()
+{
+    QString copied_text;
+    QList<QTableWidgetItem*> current_selected_items = selectedItems();
+    int current_row = -1;
+
+    for (QTableWidgetItem* item : current_selected_items)
+    {
+        if (current_row != item->row())
+        {
+            if (current_row != -1)
+            {
+                copied_text.append("\n");
+            }
+            current_row = item->row();
+        }
+        else if (!copied_text.isEmpty())
+        {
+            copied_text.append("\t");
         }
 
-        int startRow = current_selected_items.first()->row();
-        int startCol = current_selected_items.first()->column();
-
-        for (int i = 0; i < table_row_data_list.size() && (startRow + i) < rowCount(); ++i) {
-            QStringList row_data_list = table_row_data_list.at(i).split("\t");
-            for (int j = 0; j < row_data_list.size() && (startCol + j) < columnCount(); ++j) {
-                item(startRow + i, startCol + j)->setText(row_data_list.at(j));
-            }
-        }
-
-        event->accept();
+        copied_text.append(item->text());
     }
-    else if (event->matches(QKeySequence::Copy)) {
-        // Your copy logic
-        QString copied_text;
-        QList<QTableWidgetItem*> current_selected_items = selectedItems();
-        int current_row = -1;
 
-        for (QTableWidgetItem* item : current_selected_items) {
-            if (current_row != item->row()) {
-                if (current_row != -1) {
-                    copied_text.append("\n");
-                }
-                current_row = item->row();
-            }
-            else if (!copied_text.isEmpty()) {
-                copied_text.append("\t");
-            }
+    // Update the copiedText member variable
+    copiedText = copied_text;
 
-            copied_text.append(item->text());
-        }
-
-        // Update the copiedText member variable
-        copiedText = copied_text;
-
-        QApplication::clipboard()->setText(copied_text);
-        event->accept();
-    }
-    else {
-        QTableWidget::keyPressEvent(event);
-    }
+    QApplication::clipboard()->setText(copied_text);
+    return copied_text;
 }
