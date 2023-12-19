@@ -4,18 +4,6 @@
 #include "hostQt.h"
 #include "HelloQtChild.h"
 
-extern "C" __declspec(dllexport) bool showDialog(HWND parent)
-{
-  auto win = new QWinWidget(parent);
-  win->showCentered();
-
-  QMessageBox::about(win, "HelloQt.dll", "Hello, Qt in nanoCAD!");
-
-  delete win;
-
-  return TRUE;
-}
-
 hostUiPaletteSet* m_pPalSet = NULL;
 
 HINSTANCE _hdllInstance =NULL ;
@@ -105,7 +93,6 @@ void initApp()
 void uninitApp()
 {
   acedRegCmds->removeGroup(L"HELLOQT_GROUP");
-
   if (m_pPalSet)
   {
     m_pPalSet->DestroyWindow();

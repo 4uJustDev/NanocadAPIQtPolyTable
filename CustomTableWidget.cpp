@@ -7,7 +7,7 @@
 
 CustomTableWidget::CustomTableWidget(QWidget* parent) : QTableWidget(parent)
 {
-    int rows = 2;
+    rows = 2;
     setColumnCount(3);
     setRowCount(rows);
     QStringList listHeaders;

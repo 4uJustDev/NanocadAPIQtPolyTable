@@ -3,14 +3,29 @@
 #include <dbobjptr.h>
 #include "CustomTableWidget.h"
 
+#include "hostUI.h"
+#include "hostQt.h"
+QVBoxLayout* verticalValue;
+extern "C" __declspec(dllexport) bool showDialog(HWND parent)
+{
+    auto win = new QWinWidget(parent);
+    win->showCentered();
+
+    QMessageBox::about(win, "HelloQt.dll", "Hello, Qt in nanoCAD!");
+
+    delete win;
+
+    return TRUE;
+}
+
 HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
 {
   ui.setupUi(this);
 
   tableWidget = new CustomTableWidget(this);
   ui.verticalLayout_2->addWidget(tableWidget); 
-  
-  
+  verticalValue = ui.verticalLayout_3;
+
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
   QObject::connect(ui.pushButton_2, SIGNAL(clicked()), this, SLOT(addRow()));
 }
@@ -119,13 +134,48 @@ void HelloQtChild::editPolyline(){
 
     AcDbObjectIterator* pIter = pEnt->vertexIterator();
 
-    for (pIter->start(); !pIter->done(); pIter->step())
+    AcGePoint3dArray arrayPnt;
 
-        vertexArray.append(pIter->objectId());
+    //Заполняем точки из выбранной полилинии
+    for (pIter->start(); !pIter->done(); pIter->step()) {
+        
+        AcDbObjectId valIteration = pIter->objectId();
+        vertexArray.append(valIteration);
+
+        NcDb3dPolylineVertex* vertexix;
+        pEnt->openVertex(vertexix, valIteration, AcDb::kForWrite);
+
+        AcGePoint3d pnt = vertexix->position();
+        int x = pnt.x;
+        int y = pnt.y;
+        int z = pnt.z;
+        AcGePoint3d prt(x, y, z);
+        arrayPnt.append(prt);
+    }
 
     delete pIter;
+    int distance = vertexArray.length();
+    //Создаем тоблицу из этих точек
+    CustomTableWidget* tableWidget1 = new CustomTableWidget();
+    tableWidget1->setRowCount(0);
 
-    int delVertex = -1;
+    for (int row = 0; row < distance; row++) {
+
+        tableWidget1->insertRow(tableWidget1->rowCount());
+        AcGePoint3d pnt =  arrayPnt.getAt(row);
+        int x = pnt.x;
+        int y = pnt.y;
+        int z = pnt.z;
+
+        tableWidget1->setItem(row, 0, new QTableWidgetItem(QString::number(x)));
+        tableWidget1->setItem(row, 1, new QTableWidgetItem(QString::number(y)));
+        tableWidget1->setItem(row, 2, new QTableWidgetItem(QString::number(z)));
+
+    }
+
+    
+
+    /*int delVertex = -1;
     acutPrintf(_T("Select Vertex 1 - %d .\n"), vertexArray.length());
 
     ncedGetInt(L"\nWrite the vertex:", &delVertex);
@@ -136,7 +186,45 @@ void HelloQtChild::editPolyline(){
     AcGePoint3d pnt(x,y,z);
 
     NcDb3dPolylineVertex* newVertex = new NcDb3dPolylineVertex(pnt);
-    pEnt->appendVertex(newVertex);
+    pEnt->appendVertex(newVertex);*/
+
+    acutPrintf(L"\nВы начали изменять выбранный AcDb3dPolyline!\n");
+
+    /*
+    //Создаем линию на кнопку
+    QTableWidgetItem* a;
+    for (int row = 0; row < vertexArray.length(); row++) {
+
+        AcGePoint3d pnt;
+        for (int column = 0; column < 3; column++)
+        {
+            a = tableWidget->item(row, column);
+            int val = a->text().toInt();
+            switch (column) {
+            case 0:
+                pnt[X] = val;
+                break;
+            case 1:
+                pnt[Y] = val;
+                break;
+            case 2:
+                pnt[Z] = val;
+                break;
+            }
+                
+            
+        }
+        arrayPnt.append(pnt);
+    }
+    pEnt->erase();
+    pEnt = new AcDb3dPolyline(AcDb::k3dSimplePoly, arrayPnt);
+    */
+
+    QPushButton* cancelButton = new QPushButton("Cancel");
+
+    // Add widgets to the layout
+    verticalValue->addWidget(tableWidget1);
+    verticalValue->addWidget(cancelButton);
 
     pEnt->close();
 }

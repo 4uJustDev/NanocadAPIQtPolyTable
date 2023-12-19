@@ -7,7 +7,7 @@ class CustomTableWidget : public QTableWidget
 public:
     CustomTableWidget(QWidget* parent = nullptr);
     CustomTableWidget::~CustomTableWidget();
-
+    int rows;
 protected:
     bool event(QEvent* event) override;
 
