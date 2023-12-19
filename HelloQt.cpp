@@ -88,14 +88,18 @@ void helloQtPaletteCmd()
   }
 }
 
-
 void initApp()
 {
   acedRegCmds->addCommand(L"HELLOQT_GROUP",
                           L"_HELLOQTPALETTE",
                           L"HELLOQTPALETTE",
-                          ACRX_CMD_TRANSPARENT,
+                          ACRX_CMD_MODAL,
                           helloQtPaletteCmd);
+  acedRegCmds->addCommand(L"HELLOQT_GROUP",
+                          L"_EDITPOLYLINE",
+                          L"EDITPOLYLINE",
+                          ACRX_CMD_MODAL,
+                          HelloQtChild::editPolyline);
 }
 
 void uninitApp()

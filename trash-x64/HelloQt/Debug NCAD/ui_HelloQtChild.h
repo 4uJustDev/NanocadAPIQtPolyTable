@@ -24,12 +24,13 @@ public:
     QPushButton *pushButton;
     QVBoxLayout *verticalLayout_2;
     QPushButton *pushButton_2;
+    QVBoxLayout *verticalLayout_3;
 
     void setupUi(QWidget *HelloQtChildClass)
     {
         if (HelloQtChildClass->objectName().isEmpty())
             HelloQtChildClass->setObjectName(QString::fromUtf8("HelloQtChildClass"));
-        HelloQtChildClass->resize(659, 366);
+        HelloQtChildClass->resize(659, 561);
         verticalLayout = new QVBoxLayout(HelloQtChildClass);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -42,13 +43,19 @@ public:
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-
-        verticalLayout->addLayout(verticalLayout_2);
-
         pushButton_2 = new QPushButton(HelloQtChildClass);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
 
-        verticalLayout->addWidget(pushButton_2);
+        verticalLayout_2->addWidget(pushButton_2);
+
+
+        verticalLayout->addLayout(verticalLayout_2);
+
+        verticalLayout_3 = new QVBoxLayout();
+        verticalLayout_3->setSpacing(6);
+        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+
+        verticalLayout->addLayout(verticalLayout_3);
 
 
         retranslateUi(HelloQtChildClass);

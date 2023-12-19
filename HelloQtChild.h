@@ -22,6 +22,7 @@ public:
   // add a function to create a 3D polyline
   AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
   static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
+  static void editPolyline();
   Acad::ErrorStatus HelloQtChild::AddVertexToPolyline(AcDbObjectId entId, AcGePoint3d ptBase);
 
 private slots:

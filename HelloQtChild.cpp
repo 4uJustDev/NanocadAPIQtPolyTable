@@ -43,88 +43,6 @@ AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
     return HelloQtChild::PostToModelSpace(m_pPoly3d);
 }
 
-void deleteVertex()
-{
-    ads_name polyName;
-
-    ads_point pt;
-
-    if (acedEntSel(_T("\nSelect a 3d polyline: "), polyName, pt) != RTNORM)
-
-        return;
-
-    AcDbObjectId polyId;
-
-    acdbGetObjectId(polyId, polyName);
-
-    // get the polyline in an autoptr
-
-    AcDbObjectPointer<AcDb3dPolyline> pPoly(polyId, AcDb::kForRead);
-
-    Acad::ErrorStatus es = pPoly.openStatus();
-
-    // if it didn't open
-
-    if (es != Acad::eOk)
-    {
-        if (es == Acad::eNotThatKindOfClass)
-
-            acutPrintf(_T("\nYou did not select a 3d polyline."));
-
-        else
-
-            acutPrintf(_T("\nError opening entity."));
-
-        return;
-
-    }
-    // add each vertex to objectId array   
-
-    AcDbObjectIdArray vertexArray;
-
-    AcDbObjectIterator* pIter = pPoly->vertexIterator();
-
-    for (pIter->start(); !pIter->done(); pIter->step())
-
-        vertexArray.append(pIter->objectId());
-
-    delete pIter;
-
-    // get vertex to delete   
-
-    ACHAR prompt[256];
-
-    acutPrintf(prompt, _T("\nSelect vertex to delete (1-%d): "),
-
-        vertexArray.length());
-
-    int delVertex = -1;
-
-    if (acedGetInt(prompt, &delVertex) != RTNORM)
-
-        return;
-
-    if (delVertex < 1 || delVertex > vertexArray.length())
-    {
-        acutPrintf(_T("\nInvalid vertex number."));
-
-        return;
-    }
-
-    AcDbObjectPointer<AcDbObject> pObj(vertexArray[delVertex - 1],
-
-        AcDb::kForWrite);
-
-    if (pObj.openStatus() != Acad::eOk)
-    {
-        acutPrintf(_T("\nError opening vertex: %d"), delVertex);
-
-        return;
-    }
-
-    pObj->erase();
-}
-
 AcDbObjectId HelloQtChild::PostToModelSpace(AcDbEntity* pEnt)
 {
 
@@ -174,6 +92,53 @@ Acad::ErrorStatus HelloQtChild::AddVertexToPolyline(AcDbObjectId entId, AcGePoin
 
 void HelloQtChild::addRow() {
     tableWidget->insertRow(tableWidget->rowCount());
+}
+
+AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode)
+{
+    ads_name en;
+    ads_point pt;
+    acedEntSel(L"\nSelect an entity: ", en, pt);
+    // Exchange the ads_name for an object ID.
+    //
+    acdbGetObjectId(eId, en);
+    AcDb3dPolyline* pEnt;
+    acdbOpenObject(pEnt, eId, openMode);
+    return pEnt;
+}
+
+void HelloQtChild::editPolyline(){
+
+    AcDbObjectId polyId;
+
+    AcDb3dPolyline* pEnt = selectEntity(polyId, AcDb::kForWrite);
+    
+    // add each vertex to objectId array   
+
+    AcDbObjectIdArray vertexArray;
+
+    AcDbObjectIterator* pIter = pEnt->vertexIterator();
+
+    for (pIter->start(); !pIter->done(); pIter->step())
+
+        vertexArray.append(pIter->objectId());
+
+    delete pIter;
+
+    int delVertex = -1;
+    acutPrintf(_T("Select Vertex 1 - %d .\n"), vertexArray.length());
+
+    ncedGetInt(L"\nWrite the vertex:", &delVertex);
+    int x, y, z;
+    ncedGetInt(L"\nWrite the x:", &x);
+    ncedGetInt(L"\nWrite the y:", &y);
+    ncedGetInt(L"\nWrite the z:", &z);
+    AcGePoint3d pnt(x,y,z);
+
+    NcDb3dPolylineVertex* newVertex = new NcDb3dPolylineVertex(pnt);
+    pEnt->appendVertex(newVertex);
+
+    pEnt->close();
 }
 
 void HelloQtChild::addCoordinate()
