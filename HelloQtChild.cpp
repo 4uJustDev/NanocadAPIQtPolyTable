@@ -173,59 +173,57 @@ void HelloQtChild::editPolyline(){
 
     }
 
-    
-
-    /*int delVertex = -1;
-    acutPrintf(_T("Select Vertex 1 - %d .\n"), vertexArray.length());
-
-    ncedGetInt(L"\nWrite the vertex:", &delVertex);
-    int x, y, z;
-    ncedGetInt(L"\nWrite the x:", &x);
-    ncedGetInt(L"\nWrite the y:", &y);
-    ncedGetInt(L"\nWrite the z:", &z);
-    AcGePoint3d pnt(x,y,z);
-
-    NcDb3dPolylineVertex* newVertex = new NcDb3dPolylineVertex(pnt);
-    pEnt->appendVertex(newVertex);*/
-
     acutPrintf(L"\nВы начали изменять выбранный AcDb3dPolyline!\n");
 
-    /*
-    //Создаем линию на кнопку
-    QTableWidgetItem* a;
-    for (int row = 0; row < vertexArray.length(); row++) {
-
-        AcGePoint3d pnt;
-        for (int column = 0; column < 3; column++)
-        {
-            a = tableWidget->item(row, column);
-            int val = a->text().toInt();
-            switch (column) {
-            case 0:
-                pnt[X] = val;
-                break;
-            case 1:
-                pnt[Y] = val;
-                break;
-            case 2:
-                pnt[Z] = val;
-                break;
-            }
-                
-            
-        }
-        arrayPnt.append(pnt);
-    }
-    pEnt->erase();
-    pEnt = new AcDb3dPolyline(AcDb::k3dSimplePoly, arrayPnt);
-    */
 
     QPushButton* cancelButton = new QPushButton("Cancel");
+
+    QObject::connect(cancelButton, &QPushButton::clicked, [&, tableWidget1, vertexArray, pEnt]() {
+        acutPrintf(L"\nCancel!\n");
+        QTableWidgetItem* a;
+        AcGePoint3dArray arrayPnts;
+
+        for (int row = 0; row < vertexArray.length(); row++) {
+            AcGePoint3d pnt;
+            for (int column = 0; column < 3; column++) {
+                a = tableWidget1->item(row, column);
+                int val = a->text().toInt();
+                switch (column) {
+                case 0:
+                    pnt[X] = val;
+                    break;
+                case 1:
+                    pnt[Y] = val;
+                    break;
+                case 2:
+                    pnt[Z] = val;
+                    break;
+                }
+            }
+            arrayPnts.append(pnt);
+        }
+
+        AcDbObjectIterator* pIter = pEnt->vertexIterator();
+        int row = 0;
+
+        for (pIter->start(); !pIter->done(); pIter->step()) {
+            AcDbObjectId valIteration = pIter->objectId();
+            NcDb3dPolylineVertex* vertex;
+            if (pEnt->openVertex(vertex, valIteration, AcDb::kForWrite) == Acad::eOk) {
+                vertex->setPosition(arrayPnts.at(row));
+                vertex->close();
+            }
+            row++;
+        }
+
+        delete pIter;
+        });
+
+    
 
     // Add widgets to the layout
     verticalValue->addWidget(tableWidget1);
     verticalValue->addWidget(cancelButton);
-
     pEnt->close();
 }
 
