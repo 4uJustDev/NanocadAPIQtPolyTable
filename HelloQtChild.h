@@ -26,6 +26,7 @@ public:
 
 private slots:
   void addCoordinate();
+  void addRow();
 
 private:
   Ui::HelloQtChildClass ui;

@@ -23,6 +23,7 @@ public:
     QVBoxLayout *verticalLayout;
     QPushButton *pushButton;
     QVBoxLayout *verticalLayout_2;
+    QPushButton *pushButton_2;
 
     void setupUi(QWidget *HelloQtChildClass)
     {
@@ -44,6 +45,11 @@ public:
 
         verticalLayout->addLayout(verticalLayout_2);
 
+        pushButton_2 = new QPushButton(HelloQtChildClass);
+        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+
+        verticalLayout->addWidget(pushButton_2);
+
 
         retranslateUi(HelloQtChildClass);
 
@@ -54,6 +60,7 @@ public:
     {
         HelloQtChildClass->setWindowTitle(QCoreApplication::translate("HelloQtChildClass", "HelloQtChild", nullptr));
         pushButton->setText(QCoreApplication::translate("HelloQtChildClass", "\320\241\320\276\320\267\320\264\320\260\321\202\321\214", nullptr));
+        pushButton_2->setText(QCoreApplication::translate("HelloQtChildClass", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214 \321\201\321\202\321\200\320\276\320\272\321\203", nullptr));
     } // retranslateUi
 
 };

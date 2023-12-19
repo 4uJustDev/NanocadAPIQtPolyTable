@@ -24,6 +24,13 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2"/>
    </item>
+   <item>
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="text">
+      <string>Добавить строку</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

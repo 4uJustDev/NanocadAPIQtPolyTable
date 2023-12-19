@@ -2,14 +2,17 @@
 #include "HelloQtChild.h"
 #include <dbobjptr.h>
 #include "CustomTableWidget.h"
+
 HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
 {
   ui.setupUi(this);
 
   tableWidget = new CustomTableWidget(this);
-  ui.verticalLayout_2->addWidget(tableWidget);
-
+  ui.verticalLayout_2->addWidget(tableWidget); 
+  
+  
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
+  QObject::connect(ui.pushButton_2, SIGNAL(clicked()), this, SLOT(addRow()));
 }
 
 HelloQtChild::~HelloQtChild() {}
@@ -169,6 +172,9 @@ Acad::ErrorStatus HelloQtChild::AddVertexToPolyline(AcDbObjectId entId, AcGePoin
     }
 }
 
+void HelloQtChild::addRow() {
+    tableWidget->insertRow(tableWidget->rowCount());
+}
 
 void HelloQtChild::addCoordinate()
 {
