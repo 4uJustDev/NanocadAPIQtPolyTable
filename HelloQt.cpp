@@ -13,13 +13,20 @@
 #include <adslib.h>
 #include "tchar.h"
 
-class AcEdReactor : public AcEditorReactor
+HelloQtChild* pWidgetChild;
+
+class AcEdReactor : public NcEditorReactor
 {
 
     /*To watch for _PASTECLIP*/
 
     void virtual pickfirstModified() {
+        pWidgetChild->ui.pushButton->setVisible(false);
+        pWidgetChild->ui.pushButton_Update->setVisible(true);
         ncutPrintf(L"\nWorking Reactor");
+        auto table = pWidgetChild->tableWidget;
+        //AcDb3dPolyline* poliLine;
+        //pWidgetChild->updateDataInTable(poliLine);
     };
 
 };
@@ -73,12 +80,12 @@ void helloQtPaletteCmd()
 
     QWidget* pPaletteWidget1 = pPal->paletteWidget();
 
-    HelloQtChild* pWidgetsClass = new HelloQtChild(pPaletteWidget1);
+    pWidgetChild = new HelloQtChild(pPaletteWidget1);
 
     QVBoxLayout* vbox = new QVBoxLayout(pPaletteWidget1);
     vbox->setSpacing(0);
     vbox->setMargin(0);
-    vbox->addWidget(pWidgetsClass);
+    vbox->addWidget(pWidgetChild);
     vbox->addStretch();
 
     //WId winId = le3->winId(); // Make Qt windows real HWND windows
@@ -96,24 +103,6 @@ void helloQtPaletteCmd()
   }
 }
 
-void addToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity)
-{
-    AcDbBlockTable* pBlockTable;
-    AcDbBlockTableRecord* pSpaceRecord;
-
-    acdbHostApplicationServices()->workingDatabase()
-        ->getSymbolTable(pBlockTable, AcDb::kForRead);
-
-    pBlockTable->getAt(ACDB_MODEL_SPACE, pSpaceRecord,
-        AcDb::kForWrite);
-    pBlockTable->close();
-
-    pSpaceRecord->appendAcDbEntity(objId, pEntity);
-    pSpaceRecord->close();
-
-    return;
-}
-
 static AcEdReactor* testReactor = NULL;
 
 void initApp()
@@ -123,11 +112,6 @@ void initApp()
                           L"HELLOQTPALETTE",
                           ACRX_CMD_MODAL,
                           helloQtPaletteCmd);
-  acedRegCmds->addCommand(L"HELLOQT_GROUP",
-                          L"_EDITPOLYLINE",
-                          L"EDITPOLYLINE",
-                          ACRX_CMD_MODAL,
-                          HelloQtChild::editPolyline);
 
   acrxBuildClassHierarchy();
 }

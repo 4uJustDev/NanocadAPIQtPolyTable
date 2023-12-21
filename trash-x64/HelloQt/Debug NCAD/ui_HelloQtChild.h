@@ -22,9 +22,9 @@ class Ui_HelloQtChildClass
 public:
     QVBoxLayout *verticalLayout;
     QPushButton *pushButton;
+    QPushButton *pushButton_Update;
     QVBoxLayout *verticalLayout_2;
     QPushButton *pushButton_2;
-    QVBoxLayout *verticalLayout_3;
 
     void setupUi(QWidget *HelloQtChildClass)
     {
@@ -40,6 +40,11 @@ public:
 
         verticalLayout->addWidget(pushButton);
 
+        pushButton_Update = new QPushButton(HelloQtChildClass);
+        pushButton_Update->setObjectName(QString::fromUtf8("pushButton_Update"));
+
+        verticalLayout->addWidget(pushButton_Update);
+
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
@@ -51,12 +56,6 @@ public:
 
         verticalLayout->addLayout(verticalLayout_2);
 
-        verticalLayout_3 = new QVBoxLayout();
-        verticalLayout_3->setSpacing(6);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-
-        verticalLayout->addLayout(verticalLayout_3);
-
 
         retranslateUi(HelloQtChildClass);
 
@@ -67,6 +66,7 @@ public:
     {
         HelloQtChildClass->setWindowTitle(QCoreApplication::translate("HelloQtChildClass", "HelloQtChild", nullptr));
         pushButton->setText(QCoreApplication::translate("HelloQtChildClass", "\320\241\320\276\320\267\320\264\320\260\321\202\321\214", nullptr));
+        pushButton_Update->setText(QCoreApplication::translate("HelloQtChildClass", "\320\237\320\276\320\264\321\202\320\262\320\265\321\200\320\264\320\270\321\202\321\214", nullptr));
         pushButton_2->setText(QCoreApplication::translate("HelloQtChildClass", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214 \321\201\321\202\321\200\320\276\320\272\321\203", nullptr));
     } // retranslateUi
 

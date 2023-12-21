@@ -60,8 +60,6 @@
 //-----------------------------------------------------------------------------
 #define _ATL_APARTMENT_THREADED
 #define _ATL_NO_AUTOMATIC_NAMESPACE
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS    //- Some CString constructors will be explicit
-//- Turns off ATL's hiding of some common and often safely ignored warning messages
 #define _ATL_ALL_WARNINGS
 
 //-----------------------------------------------------------------------------
@@ -73,6 +71,7 @@ using namespace ATL ;
 
 #include "dbxHeaders.h"
 #include "AcExtensionModule.h"
+#include "HelloQtChild.h"
 
 #include <QMessageBox>
 #include <QHBoxLayout>
@@ -81,6 +80,7 @@ using namespace ATL ;
 #include <QPushButton>
 #include <QWindow>
 #include <QTableWidgetItem>
+
 #pragma pack (pop)
 
 //-----------------------------------------------------------------------------
