@@ -21,6 +21,7 @@ public:
   //Manipulation wuth NcDbEntities
   AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
   static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
+  AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode);
 
 private slots:
   void addCoordinate();

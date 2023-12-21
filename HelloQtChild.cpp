@@ -73,7 +73,7 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
     for (int row = 0; row < distance; row++) {
     
         tableWidget->insertRow(tableWidget->rowCount());
-        AcGePoint3d pnt =  arrayPnt.getAt(row);
+        AcGePoint3d pnt =  arrayPnt.getAt(row); 
         int x = pnt.x;
         int y = pnt.y;
         int z = pnt.z;
@@ -114,7 +114,7 @@ AcDbObjectId HelloQtChild::PostToModelSpace(AcDbEntity* pEnt)
     return entId;
 }
 
-AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode)
+AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode)
 {
     ads_name en;
     ads_point pt;
