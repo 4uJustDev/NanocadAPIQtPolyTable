@@ -22,6 +22,9 @@ public:
   AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
   static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
   AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode);
+  void refreshPolyline();
+  //Kostil
+  AcDbObjectId globalId;
 
 private slots:
   void addCoordinate();

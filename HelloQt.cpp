@@ -307,10 +307,10 @@ class AcEdReactor : public NcEditorReactor
         ads_name ent;
         if (acedSSName(sset, 0, ent) == RTNORM) {
 
-            AcDbObjectId eId;
-            acdbGetObjectId(eId, ent);
+
+            acdbGetObjectId(pWidgetChild->globalId, ent);
             AcDb3dPolyline* pEnt;
-            acdbOpenObject(pEnt, eId, AcDb::kForWrite);
+            acdbOpenObject(pEnt, pWidgetChild->globalId, AcDb::kForWrite);
             
             pWidgetChild->updateDataInTable(pEnt);
 

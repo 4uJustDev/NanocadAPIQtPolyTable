@@ -116,16 +116,51 @@ AcDbObjectId HelloQtChild::PostToModelSpace(AcDbEntity* pEnt)
 
 AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode)
 {
-    ads_name en;
-    ads_point pt;
-    acedEntSel(L"\nSelect an entity: ", en, pt);
-    // Exchange the ads_name for an object ID.
-    //
-    acdbGetObjectId(eId, en);
     AcDb3dPolyline* pEnt;
     acdbOpenObject(pEnt, eId, openMode);
     return pEnt;
 }
+void HelloQtChild::refreshPolyline() {
+    acutPrintf(L"\nCancel!\n");
+    QTableWidgetItem* a;
+    AcGePoint3dArray arrayPnts;
+    AcDb3dPolyline* pEnt = selectEntity(globalId, AcDb::kForWrite);
+
+    for (int row = 0; row < tableWidget->rowCount(); row++) {
+        AcGePoint3d pnt;
+        for (int column = 0; column < 3; column++) {
+            a = tableWidget->item(row, column);
+            int val = a->text().toInt();
+            switch (column) {
+            case 0:
+                pnt[X] = val;
+                break;
+            case 1:
+                pnt[Y] = val;
+                break;
+            case 2:
+                pnt[Z] = val;
+                break;
+            }
+        }
+        arrayPnts.append(pnt);
+    }
+    
+    AcDbObjectIterator* pIter = pEnt->vertexIterator();
+    int row = 0;
+    
+    for (pIter->start(); !pIter->done(); pIter->step()) {
+        AcDbObjectId valIteration = pIter->objectId();
+        NcDb3dPolylineVertex* vertex;
+        if (pEnt->openVertex(vertex, valIteration, AcDb::kForWrite) == Acad::eOk) {
+            vertex->setPosition(arrayPnts.at(row));
+            vertex->close();
+        }
+        row++;
+    }
+    
+    delete pIter;
+};
 
 
 //void HelloQtChild::editPolyline(){
@@ -258,6 +293,9 @@ void HelloQtChild::addRow() {
     tableWidget->insertRow(tableWidget->rowCount());
 }
 void HelloQtChild::acceptChanges() {
+   
+    refreshPolyline();
+
     ui.pushButton_Update->setVisible(false);
     ui.pushButton->setVisible(true);
 }
