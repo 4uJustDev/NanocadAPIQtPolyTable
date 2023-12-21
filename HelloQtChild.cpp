@@ -5,6 +5,7 @@
 
 #include "hostUI.h"
 #include "hostQt.h"
+
 QVBoxLayout* verticalValue;
 extern "C" __declspec(dllexport) bool showDialog(HWND parent)
 {
@@ -80,31 +81,6 @@ AcDbObjectId HelloQtChild::PostToModelSpace(AcDbEntity* pEnt)
     return entId;
 }
 
-Acad::ErrorStatus HelloQtChild::AddVertexToPolyline(AcDbObjectId entId, AcGePoint3d pnt)
-{
-
-    if (entId)
-    {
-        AcDbEntity* pEnt;
-        acdbOpenAcDbEntity(pEnt, entId, AcDb::kForWrite);
-
-        AcDb3dPolyline* pPoly = AcDb3dPolyline::cast(pEnt);
-
-        NcDb3dPolylineVertex* newVertex = new NcDb3dPolylineVertex(pnt);
-        pPoly->appendVertex(newVertex);
-
-        pEnt->close();
-        pPoly->close();
-
-        return Acad::eOk;
-    }
-    else
-    {
-        acutPrintf(_T("\nInvalid 3D Polyline pointer."));
-        return Acad::eInvalidInput;
-    }
-}
-
 void HelloQtChild::addRow() {
     tableWidget->insertRow(tableWidget->rowCount());
 }
@@ -175,7 +151,6 @@ void HelloQtChild::editPolyline(){
 
     acutPrintf(L"\nВы начали изменять выбранный AcDb3dPolyline!\n");
 
-
     QPushButton* cancelButton = new QPushButton("Cancel");
 
     QObject::connect(cancelButton, &QPushButton::clicked, [&, tableWidget1, vertexArray, pEnt]() {
@@ -202,7 +177,7 @@ void HelloQtChild::editPolyline(){
             }
             arrayPnts.append(pnt);
         }
-
+        
         AcDbObjectIterator* pIter = pEnt->vertexIterator();
         int row = 0;
 
@@ -217,6 +192,7 @@ void HelloQtChild::editPolyline(){
         }
 
         delete pIter;
+        tableWidget1->hide();
         });
 
     

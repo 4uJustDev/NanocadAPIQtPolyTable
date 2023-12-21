@@ -32,4 +32,3 @@ private slots:
 private:
   Ui::HelloQtChildClass ui;
 };
-

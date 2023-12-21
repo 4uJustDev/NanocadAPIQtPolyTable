@@ -1,8 +1,28 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 #include "hostUI.h"
 #include "hostQt.h"
 #include "HelloQtChild.h"
+
+#include <string.h>
+#include <stdlib.h>
+#include <aced.h>
+#include <dbents.h>
+#include <dbsymtb.h>
+#include <dbapserv.h>
+#include <adslib.h>
+#include "tchar.h"
+
+class AcEdReactor : public AcEditorReactor
+{
+
+    /*To watch for _PASTECLIP*/
+
+    void virtual pickfirstModified() {
+        ncutPrintf(L"\nWorking Reactor");
+    };
+
+};
 
 hostUiPaletteSet* m_pPalSet = NULL;
 
@@ -76,6 +96,26 @@ void helloQtPaletteCmd()
   }
 }
 
+void addToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity)
+{
+    AcDbBlockTable* pBlockTable;
+    AcDbBlockTableRecord* pSpaceRecord;
+
+    acdbHostApplicationServices()->workingDatabase()
+        ->getSymbolTable(pBlockTable, AcDb::kForRead);
+
+    pBlockTable->getAt(ACDB_MODEL_SPACE, pSpaceRecord,
+        AcDb::kForWrite);
+    pBlockTable->close();
+
+    pSpaceRecord->appendAcDbEntity(objId, pEntity);
+    pSpaceRecord->close();
+
+    return;
+}
+
+static AcEdReactor* testReactor = NULL;
+
 void initApp()
 {
   acedRegCmds->addCommand(L"HELLOQT_GROUP",
@@ -88,11 +128,14 @@ void initApp()
                           L"EDITPOLYLINE",
                           ACRX_CMD_MODAL,
                           HelloQtChild::editPolyline);
+
+  acrxBuildClassHierarchy();
 }
 
 void uninitApp()
 {
   acedRegCmds->removeGroup(L"HELLOQT_GROUP");
+  acedRegCmds->removeGroup(L"ASDK_ALINES");
   if (m_pPalSet)
   {
     m_pPalSet->DestroyWindow();
@@ -108,11 +151,14 @@ acrxEntryPoint(AcRx::AppMsgCode msg, void* appId)
   case AcRx::kInitAppMsg:
     acrxDynamicLinker->unlockApplication(appId);
     acrxDynamicLinker->registerAppMDIAware(appId);
+    testReactor = new AcEdReactor();
+    acedEditor->addReactor(testReactor);
     initApp();
     break;
 
   case AcRx::kUnloadAppMsg:
     uninitApp();
+    acedEditor->removeReactor(testReactor);
     break;
   }
 
