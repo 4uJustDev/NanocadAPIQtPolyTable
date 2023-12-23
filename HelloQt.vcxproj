@@ -116,10 +116,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CustomTableWidget.h" />
+    <ClInclude Include="ObjectToNotify.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HelloQt.cpp" />
+    <ClCompile Include="ObjectToNotify.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug NCAD|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release NCAD|x64'">Create</PrecompiledHeader>

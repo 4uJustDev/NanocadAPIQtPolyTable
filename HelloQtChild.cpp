@@ -2,6 +2,7 @@
 #include "HelloQtChild.h"
 #include <dbobjptr.h>
 #include "CustomTableWidget.h"
+#include "ObjectToNotify.h"
 
 #include "hostUI.h"
 #include "hostQt.h"
@@ -87,31 +88,96 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
 
 AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
 {
+    AcDbDatabase* pDb = acdbHostApplicationServices()->workingDatabase();
+
     NcDb3dPolyline* m_pPoly3d = new AcDb3dPolyline(AcDb::k3dSimplePoly, points);
 
-    return HelloQtChild::PostToModelSpace(m_pPoly3d);
+    acdbOpenObject(m_pPoly3d, globalId, AcDb::kForWrite);
+
+    m_pPoly3d->setDatabaseDefaults(pDb);
+
+    HelloQtChild::PostToModelSpace(globalId, m_pPoly3d);
+
+    // Open the named object dictionary, check if there is
+    // an entry with the key "ASDK_DICT".  If not, create a
+    // dictionary and add it.
+    // 
+    AcDbDictionary* pNamedObj;
+    AcDbDictionary* pNameList;
+    pDb->getNamedObjectsDictionary(pNamedObj,
+        AcDb::kForWrite);
+    if (pNamedObj->getAt(_T("ASDK_DICT"),
+        (AcDbObject*&)pNameList, AcDb::kForWrite)
+        == Acad::eKeyNotFound)
+    {
+        pNameList = new AcDbDictionary;
+        AcDbObjectId DictId;
+        pNamedObj->setAt(_T("ASDK_DICT"), pNameList, DictId);
+    }
+    pNamedObj->close();
+    AcDbLine;
+    // Create the AsdkObjectToNotify for lineA
+    //
+    ObjectToNotify* pObj = new ObjectToNotify();
+    pObj->eLinkage(globalId);
+
+    AcDbObjectId objId;
+    if ((pNameList->getAt(_T("object_to_notify_A"), objId))
+        == Acad::eKeyNotFound)
+    {
+        pNameList->setAt(_T("object_to_notify_A"), pObj, objId);
+        pObj->close();
+    }
+    else {
+        delete pObj;
+        ads_printf(_T("object_to_notify_A already exists\n"));
+    }
+
+    // Set up persistent reactor link between polyline and AsdkObjectToNotify
+    m_pPoly3d->addPersistentReactor(objId);
+    m_pPoly3d->close();
+
+    return globalId;
 }
 
-AcDbObjectId HelloQtChild::PostToModelSpace(AcDbEntity* pEnt)
+//AcDbObjectId HelloQtChild::PostToModelSpace(AcDbEntity* pEnt)
+//{
+//
+//    // Get pointers to the block table
+//    AcDbBlockTable* pBlockTable;
+//    acdbHostApplicationServices()->workingDatabase()->getBlockTable(pBlockTable, AcDb::kForRead);
+//
+//    // Get pointers that point to specific block table records (model space)
+//    AcDbBlockTableRecord* pBlockTableRecord;
+//    pBlockTable->getAt(ACDB_MODEL_SPACE, pBlockTableRecord, AcDb::kForWrite);
+//
+//    // Add an object of the ACDBline class to the block table record
+//    AcDbObjectId entId;
+//    pBlockTableRecord->appendAcDbEntity(entId, pEnt);
+//
+//    // Turn off the various objects of the graphical database
+//    pBlockTable->close();
+//    pBlockTableRecord->close();
+//    pEnt->close();
+//    return entId;
+//}
+
+void HelloQtChild::PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity)
 {
-
-    // Get pointers to the block table
     AcDbBlockTable* pBlockTable;
-    acdbHostApplicationServices()->workingDatabase()->getBlockTable(pBlockTable, AcDb::kForRead);
+    AcDbBlockTableRecord* pSpaceRecord;
 
-    // Get pointers that point to specific block table records (model space)
-    AcDbBlockTableRecord* pBlockTableRecord;
-    pBlockTable->getAt(ACDB_MODEL_SPACE, pBlockTableRecord, AcDb::kForWrite);
+    acdbHostApplicationServices()->workingDatabase()
+        ->getSymbolTable(pBlockTable, AcDb::kForRead);
 
-    // Add an object of the ACDBline class to the block table record
-    AcDbObjectId entId;
-    pBlockTableRecord->appendAcDbEntity(entId, pEnt);
-
-    // Turn off the various objects of the graphical database
+    pBlockTable->getAt(ACDB_MODEL_SPACE, pSpaceRecord,
+        AcDb::kForWrite);
     pBlockTable->close();
-    pBlockTableRecord->close();
-    pEnt->close();
-    return entId;
+
+    pSpaceRecord->appendAcDbEntity(objId, pEntity);
+    pSpaceRecord->close();
+
+    return;
 }
 
 AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode)
@@ -120,8 +186,9 @@ AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode ope
     acdbOpenObject(pEnt, eId, openMode);
     return pEnt;
 }
+
 void HelloQtChild::refreshPolyline() {
-    acutPrintf(L"\nCancel!\n");
+   /* acutPrintf(L"\nCancel!\n");
     QTableWidgetItem* a;
     AcGePoint3dArray arrayPnts;
     AcDb3dPolyline* pEnt = selectEntity(globalId, AcDb::kForWrite);
@@ -159,9 +226,8 @@ void HelloQtChild::refreshPolyline() {
         row++;
     }
     
-    delete pIter;
+    delete pIter;*/
 };
-
 
 //void HelloQtChild::editPolyline(){
 //

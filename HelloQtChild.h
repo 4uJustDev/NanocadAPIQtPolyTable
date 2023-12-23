@@ -20,7 +20,8 @@ public:
 
   //Manipulation wuth NcDbEntities
   AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
-  static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
+  //static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
+  void PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity);
   AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode);
   void refreshPolyline();
   //Kostil
