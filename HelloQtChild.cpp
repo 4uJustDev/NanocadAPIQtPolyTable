@@ -23,10 +23,6 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
 
 HelloQtChild::~HelloQtChild() {}
 
-
-HelloQtChild* HelloQtChild::getGlobalWidget() {
-    return HelloQtChild::globalWidget;
-};
 AcGePoint3dArray HelloQtChild::getDataFromTable(){
     AcGePoint3dArray arrayPnt;
     QTableWidgetItem* a;
@@ -94,13 +90,15 @@ AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
 {
     AcDbDatabase* pDb = acdbHostApplicationServices()->workingDatabase();
 
+    AcDbObjectId polyID;
+
     NcDb3dPolyline* m_pPoly3d = new AcDb3dPolyline(AcDb::k3dSimplePoly, points);
 
-    acdbOpenObject(m_pPoly3d, globalId, AcDb::kForWrite);
+    acdbOpenObject(m_pPoly3d, polyID, AcDb::kForWrite);
 
     m_pPoly3d->setDatabaseDefaults(pDb);
 
-    HelloQtChild::PostToModelSpace(globalId, m_pPoly3d);
+    HelloQtChild::PostToModelSpace(polyID, m_pPoly3d);
 
     // Open the named object dictionary, check if there is
     // an entry with the key "ASDK_DICT".  If not, create a
@@ -123,7 +121,7 @@ AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
     // Create the AsdkObjectToNotify for lineA
     //
     ObjectToNotify* pObj = new ObjectToNotify(this);
-    pObj->eLinkage(globalId);
+    pObj->eLinkage(polyID);
 
     AcDbObjectId objId;
     if ((pNameList->getAt(_T("object_to_notify_A"), objId))
@@ -141,30 +139,8 @@ AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
     m_pPoly3d->addPersistentReactor(objId);
     m_pPoly3d->close();
 
-    return globalId;
+    return polyID;
 }
-
-//AcDbObjectId HelloQtChild::PostToModelSpace(AcDbEntity* pEnt)
-//{
-//
-//    // Get pointers to the block table
-//    AcDbBlockTable* pBlockTable;
-//    acdbHostApplicationServices()->workingDatabase()->getBlockTable(pBlockTable, AcDb::kForRead);
-//
-//    // Get pointers that point to specific block table records (model space)
-//    AcDbBlockTableRecord* pBlockTableRecord;
-//    pBlockTable->getAt(ACDB_MODEL_SPACE, pBlockTableRecord, AcDb::kForWrite);
-//
-//    // Add an object of the ACDBline class to the block table record
-//    AcDbObjectId entId;
-//    pBlockTableRecord->appendAcDbEntity(entId, pEnt);
-//
-//    // Turn off the various objects of the graphical database
-//    pBlockTable->close();
-//    pBlockTableRecord->close();
-//    pEnt->close();
-//    return entId;
-//}
 
 void HelloQtChild::PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity)
 {
@@ -192,10 +168,16 @@ AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode ope
 }
 
 void HelloQtChild::refreshPolyline() {
-   /* acutPrintf(L"\nCancel!\n");
+
+   acutPrintf(L"\Refresh polyline start!\n");
+
     QTableWidgetItem* a;
     AcGePoint3dArray arrayPnts;
-    AcDb3dPolyline* pEnt = selectEntity(globalId, AcDb::kForWrite);
+    /// <summary>
+    /// /
+    /// </summary>
+    AcDbObjectId idid;
+    AcDb3dPolyline* pEnt = selectEntity(idid, AcDb::kForWrite);
 
     for (int row = 0; row < tableWidget->rowCount(); row++) {
         AcGePoint3d pnt;
@@ -230,7 +212,8 @@ void HelloQtChild::refreshPolyline() {
         row++;
     }
     
-    delete pIter;*/
+    delete pIter;
+    acutPrintf(L"\Refresh polyline end!\n");
 };
 
 //void HelloQtChild::editPolyline(){
@@ -338,6 +321,36 @@ void HelloQtChild::refreshPolyline() {
 //    pEnt->close();
 //}
 
+void HelloQtChild::test() {
+    ads_real x = 17.5;
+
+    NCHAR fmtval[12];
+
+    // Точность - 3-ий параметр: 4 места в первом
+
+    // Вызвать, 2 места в другие.
+
+    ncdbRToS(x, 1, 4, fmtval); // Режим 1 = научный
+
+    acutPrintf(L"Научный Значение, отформатированное как %s\n ", fmtval);
+
+    acdbRToS(x, 2, 2, fmtval); // Режим 2 = десятичное число
+
+    acutPrintf(L"Десятичное Значение, отформатированное как %s\n ", fmtval);
+
+    acdbRToS(x, 3, 2, fmtval); // Режим 3 = разработка
+
+    acutPrintf(L"Разработка Значение, отформатированное как %s\n ", fmtval);
+
+    acdbRToS(x, 4, 2, fmtval); // Режим 4 = архитектурный
+
+    acutPrintf(L"Архитектурный Значение, отформатированное как %s\n ", fmtval);
+
+    acdbRToS(x, 5, 2, fmtval); // Режим 5 = дробный
+
+    acutPrintf(L"Дробный Значение, отформатированное как %s\n ", fmtval);
+};
+
 void HelloQtChild::addCoordinate()
 {
     try
@@ -364,7 +377,8 @@ void HelloQtChild::addRow() {
 }
 void HelloQtChild::acceptChanges() {
    
-    refreshPolyline();
+    //refreshPolyline();
+    test();
 
     ui.pushButton_Update->setVisible(false);
     ui.pushButton->setVisible(true);

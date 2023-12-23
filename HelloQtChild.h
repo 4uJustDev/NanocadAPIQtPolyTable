@@ -24,8 +24,7 @@ public:
   void PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity);
   AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode);
   void refreshPolyline();
-
-  HelloQtChild* getGlobalWidget();
+  void test();
   //Kostil
   AcDbObjectId globalId;
 
@@ -37,5 +36,4 @@ private slots:
 
 public:
   Ui::HelloQtChildClass ui;
-  HelloQtChild* globalWidget;
 };

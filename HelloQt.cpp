@@ -73,10 +73,80 @@ class AcEdReactor : public NcEditorReactor
         //acedSSFree(sset);
 
         // //Continue with your other code
-        //pWidgetChild->ui.pushButton->setVisible(false);
-        //pWidgetChild->ui.pushButton_Update->setVisible(true);  
+        pWidgetChild->ui.pushButton->setVisible(false);
+        pWidgetChild->ui.pushButton_Update->setVisible(true);  
 
         ncutPrintf(L"\nWorking Reactor");
+    }
+
+
+    void virtual OtherWblock(AcDbDatabase* pDestDb, AcDbIdMapping& idMap, AcDbDatabase* pSrcDb){
+
+        ncutPrintf(L"\nOther WBlock");
+        ////
+        //AcDbBlockTable* pSrcBlockTable;
+        //pSrcDb->getSymbolTable(pSrcBlockTable, AcDb::kForRead);
+
+        //AcDbObjectId srcModelSpaceId;
+        //pSrcBlockTable->getAt(ACDB_MODEL_SPACE,
+        //    srcModelSpaceId);
+        //pSrcBlockTable->close();
+
+        //AcDbObjectId destId;
+        //if (pDestDb == pSrcDb) {
+        //    // It's a fastWblock, so we use the source objectId.
+        //    //
+        //    destId = srcModelSpaceId;
+        //}
+        //else {
+        //    AcDbIdPair idPair;
+        //    idPair.setKey(srcModelSpaceId);
+        //    idMap.compute(idPair);
+        //    destId = idPair.value();
+        //}
+
+        //AcDbBlockTableRecord* pDestBTR;
+        //acdbOpenAcDbObject((AcDbObject*&)pDestBTR,
+        //    destId, AcDb::kForRead, Adesk::kTrue);
+
+        //// END CODE APPEARING IN SDK DOCUMENT.
+
+        //AcDbIdPair idPair;
+        //idPair.setKey(srcModelSpaceId);
+        //idMap.compute(idPair);
+
+        //// idPair.value() is the correct destination objectId for any
+        //// wblock.  But, for a fastWblock, it cannot be used to access
+        //// the destination object until the wblock operation is over.
+
+        //acutPrintf(_T("\nCorrect destination BTR's ObjectId is:\t\t%Ld"),
+        //    idPair.value().asOldId());
+        //pDestBTR->close();
+
+        //// Incorrect way done here so that the wrong value can be
+        //// compared to the correct value
+        ////
+        //AcDbBlockTable* pDestBlockTable;
+        //pDestDb->getSymbolTable(pDestBlockTable, AcDb::kForRead);
+        //pDestBlockTable->getAt(ACDB_MODEL_SPACE,
+        //    pDestBTR, AcDb::kForRead);
+        //pDestBlockTable->close();
+
+        //acutPrintf(_T("\nIncorrect destination BTR's ObjectId is \t\t%Ld"),
+        //    pDestBTR->objectId().asOldId());
+
+        //pDestBTR->close();
+
+        //// source database Model Space BTR's ObjectId is shown to
+        //// demonstrate that this is what the incorrect method gets
+        ////
+        //pSrcDb->getSymbolTable(pSrcBlockTable, AcDb::kForRead);
+        //pSrcBlockTable->getAt(ACDB_MODEL_SPACE,
+        //    srcModelSpaceId);
+        //pSrcBlockTable->close();
+
+        //acutPrintf(_T("\nSource Database's Model Space BTR's ObjectId is \t%Ld"),
+        //    srcModelSpaceId.asOldId());
     }
 };
 
