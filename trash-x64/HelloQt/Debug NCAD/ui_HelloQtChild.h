@@ -11,6 +11,7 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -25,6 +26,7 @@ public:
     QPushButton *pushButton_Update;
     QVBoxLayout *verticalLayout_2;
     QPushButton *pushButton_2;
+    QComboBox *comboBox;
 
     void setupUi(QWidget *HelloQtChildClass)
     {
@@ -56,6 +58,16 @@ public:
 
         verticalLayout->addLayout(verticalLayout_2);
 
+        comboBox = new QComboBox(HelloQtChildClass);
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+
+        verticalLayout->addWidget(comboBox);
+
 
         retranslateUi(HelloQtChildClass);
 
@@ -68,6 +80,12 @@ public:
         pushButton->setText(QCoreApplication::translate("HelloQtChildClass", "\320\241\320\276\320\267\320\264\320\260\321\202\321\214", nullptr));
         pushButton_Update->setText(QCoreApplication::translate("HelloQtChildClass", "\320\237\320\276\320\264\321\202\320\262\320\265\321\200\320\264\320\270\321\202\321\214", nullptr));
         pushButton_2->setText(QCoreApplication::translate("HelloQtChildClass", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214 \321\201\321\202\321\200\320\276\320\272\321\203", nullptr));
+        comboBox->setItemText(0, QCoreApplication::translate("HelloQtChildClass", "Scientific", nullptr));
+        comboBox->setItemText(1, QCoreApplication::translate("HelloQtChildClass", "Decimal", nullptr));
+        comboBox->setItemText(2, QCoreApplication::translate("HelloQtChildClass", "Engineering ", nullptr));
+        comboBox->setItemText(3, QCoreApplication::translate("HelloQtChildClass", "Architectural", nullptr));
+        comboBox->setItemText(4, QCoreApplication::translate("HelloQtChildClass", "Fractional", nullptr));
+
     } // retranslateUi
 
 };

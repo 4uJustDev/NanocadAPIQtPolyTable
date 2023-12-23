@@ -45,38 +45,78 @@ class AcEdReactor : public NcEditorReactor
 
 
     void virtual pickfirstModified() override {
-         //Get the selection set
-        //ads_name sset;
-        //if (acedSSGet(nullptr, nullptr, nullptr, nullptr, sset) != RTNORM) {
-        //    // Failed to get the selection set
-        //    ncutPrintf(L"\nFailed to get the selection set");
-        //    return;
-        //}
-
-        //// Process each selected object in the set
-        //long length = 0;
- 
-        //ads_name ent;
-        //if (acedSSName(sset, 0, ent) == RTNORM) {
-
-
-        //    acdbGetObjectId(pWidgetChild->globalId, ent);
-        //    AcDb3dPolyline* pEnt;
-        //    acdbOpenObject(pEnt, pWidgetChild->globalId, AcDb::kForWrite);
-        //    
-        //    pWidgetChild->updateDataInTable(pEnt);
-
-        //    ads_printf(L"\nSelected Entity Handle: %x", ent[0]);
-        //}
-
-        //// Release the selection set
-        //acedSSFree(sset);
-
-        // //Continue with your other code
-        pWidgetChild->ui.pushButton->setVisible(false);
-        pWidgetChild->ui.pushButton_Update->setVisible(true);  
 
         ncutPrintf(L"\nWorking Reactor");
+         //Get the selection set
+        struct resbuf* prbGrip = NULL;
+
+        struct resbuf* prbPick = NULL;
+
+        // Get the selection sets
+
+        ncedSSGetFirst(&prbGrip, &prbPick);
+
+        long gripLen, pickLen;
+        if (prbPick->restype != RTPICKS)
+            return;
+
+        //acedSSLength(prbPick->resval.rlname, &pickLen);
+
+        ads_name entres;
+        AcDbObjectId objId;
+        acedSSName(prbPick->resval.rlname, 0, entres);
+        acdbGetObjectId(objId, entres);
+
+        AcDbEntity* pEnt;
+        acdbOpenAcDbEntity(pEnt, objId, kForRead);
+
+        QTableWidgetItem* a;
+        AcGePoint3dArray arrayPnts;
+        AcDb3dPolyline* pCirc = AcDb3dPolyline::cast(pEnt);
+
+        AcDbObjectIterator* pIter = pCirc->vertexIterator();
+
+        for (pIter->start(); !pIter->done(); pIter->step()) {
+
+            AcDbObjectId valIteration = pIter->objectId();
+           // arrayPnts.append(valIteration);
+
+            NcDb3dPolylineVertex* vertexix;
+            pCirc->openVertex(vertexix, valIteration, AcDb::kForWrite);
+
+            AcGePoint3d pnt = vertexix->position();
+            int x = pnt.x;
+            ads_printf(L"\nSelected Entity Handle: %x", x);
+            int y = pnt.y;
+            ads_printf(L"\nSelected Entity Handle: %x", y);
+            int z = pnt.z;
+            ads_printf(L"\nSelected Entity Handle: %x", z);
+            AcGePoint3d prt(x, y, z);
+            arrayPnts.append(prt);
+        }
+
+        ncutPrintf(L"\nEnd Reactor");
+
+        //if (pCirc == NULL)
+        //    continue;
+
+        ////ads_printf(L"\nSelected Entity Handle: %x", pCirc->radius());
+
+        //}
+
+        //acedSSFree(prbPick->resval.rlname);
+
+        //acedSSFree(prbGrip->resval.rlname);
+
+        //acutRelRb(prbGrip);
+
+        //acutRelRb(prbPick);
+
+        // //Continue with your other code
+        //pWidgetChild->ui.pushButton->setVisible(false);
+        //pWidgetChild->ui.pushButton_Update->setVisible(true);  
+
+
     }
 
 

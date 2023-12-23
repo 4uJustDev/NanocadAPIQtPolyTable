@@ -39,6 +39,35 @@
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="QComboBox" name="comboBox">
+     <item>
+      <property name="text">
+       <string>Scientific</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Decimal</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Engineering </string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Architectural</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Fractional</string>
+      </property>
+     </item>
+    </widget>
+   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
