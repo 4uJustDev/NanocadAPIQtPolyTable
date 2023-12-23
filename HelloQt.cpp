@@ -45,7 +45,7 @@ class AcEdReactor : public NcEditorReactor
 
 
     void virtual pickfirstModified() override {
-        // Get the selection set
+         //Get the selection set
         //ads_name sset;
         //if (acedSSGet(nullptr, nullptr, nullptr, nullptr, sset) != RTNORM) {
         //    // Failed to get the selection set
@@ -72,9 +72,9 @@ class AcEdReactor : public NcEditorReactor
         //// Release the selection set
         //acedSSFree(sset);
 
-        // Continue with your other code
+        // //Continue with your other code
         //pWidgetChild->ui.pushButton->setVisible(false);
-        //pWidgetChild->ui.pushButton_Update->setVisible(true);        
+        //pWidgetChild->ui.pushButton_Update->setVisible(true);  
 
         ncutPrintf(L"\nWorking Reactor");
     }

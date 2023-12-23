@@ -13,6 +13,7 @@ void ObjectToNotify::modified(const AcDbObject* pObj)
     //    return;
     //}
     acutPrintf(_T("Modified polylines.\n"));
+    helloQtChild->updateDataInTable(pPolyline);
 
    // acutPrintf(_T("\nReactor attached to %lx calling %lx.\n"),
        // pPolyline->objectId().asOldId(), mId.asOldId());

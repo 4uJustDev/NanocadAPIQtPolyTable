@@ -23,6 +23,10 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
 
 HelloQtChild::~HelloQtChild() {}
 
+
+HelloQtChild* HelloQtChild::getGlobalWidget() {
+    return HelloQtChild::globalWidget;
+};
 AcGePoint3dArray HelloQtChild::getDataFromTable(){
     AcGePoint3dArray arrayPnt;
     QTableWidgetItem* a;
@@ -118,7 +122,7 @@ AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
     AcDbLine;
     // Create the AsdkObjectToNotify for lineA
     //
-    ObjectToNotify* pObj = new ObjectToNotify();
+    ObjectToNotify* pObj = new ObjectToNotify(this);
     pObj->eLinkage(globalId);
 
     AcDbObjectId objId;
