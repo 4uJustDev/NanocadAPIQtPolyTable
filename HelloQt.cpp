@@ -1,8 +1,9 @@
 ﻿#include "stdafx.h"
-
 #include "hostUI.h"
 #include "hostQt.h"
+
 #include "HelloQtChild.h"
+#include "ObjectToNotify.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -12,26 +13,8 @@
 #include <dbapserv.h>
 #include <adslib.h>
 #include "tchar.h"
-
 #include "acarray.h"
 #include "acdocman.h"
-#include "aced.h"
-#include "dbents.h"
-#include "dbapserv.h"
-#include "dbapserv.h"
-#include "dbapserv.h"
-
-
-#include <string.h>
-#include <stdlib.h>
-#include <aced.h>
-#include <dbents.h>
-#include <dbsymtb.h>
-#include <dbapserv.h>
-#include <adslib.h>
-#include "tchar.h"
-
-#include "ObjectToNotify.h"
 
 ACRX_DXF_DEFINE_MEMBERS(ObjectToNotify, AcDbObject,
     AcDb::kDHL_CURRENT, AcDb::kMReleaseCurrent,
@@ -47,6 +30,7 @@ class AcEdReactor : public NcEditorReactor
     void virtual pickfirstModified() override {
 
         ncutPrintf(L"\nWorking Reactor");
+
          //Get the selection set
         struct resbuf* prbGrip = NULL;
 
@@ -54,139 +38,42 @@ class AcEdReactor : public NcEditorReactor
 
         // Get the selection sets
 
-        ncedSSGetFirst(&prbGrip, &prbPick);
+        acedSSGetFirst(&prbGrip, &prbPick);
 
         long gripLen, pickLen;
+
         if (prbPick->restype != RTPICKS)
             return;
 
-        //acedSSLength(prbPick->resval.rlname, &pickLen);
+        acedSSLength(prbPick->resval.rlname, &pickLen);
 
-        ads_name entres;
-        AcDbObjectId objId;
-        acedSSName(prbPick->resval.rlname, 0, entres);
-        acdbGetObjectId(objId, entres);
+        for (int i = 0; i < pickLen; i++)
+        {
+            ads_name entres;
+            AcDbObjectId objId;
+            acedSSName(prbPick->resval.rlname, i, entres);
+            acdbGetObjectId(objId, entres);
 
-        AcDbEntity* pEnt;
-        acdbOpenAcDbEntity(pEnt, objId, kForRead);
+            AcDbEntity* pEnt;
+            acdbOpenAcDbEntity(pEnt, objId, kForRead);
 
-        QTableWidgetItem* a;
-        AcGePoint3dArray arrayPnts;
-        AcDb3dPolyline* pCirc = AcDb3dPolyline::cast(pEnt);
+            AcGePoint3dArray arrayPnts;
+            AcDb3dPolyline* pCirc = AcDb3dPolyline::cast(pEnt);
 
-        AcDbObjectIterator* pIter = pCirc->vertexIterator();
+            pWidgetChild->updateDataInTable(pCirc);
 
-        for (pIter->start(); !pIter->done(); pIter->step()) {
+            if (pCirc == NULL)
+                continue;
 
-            AcDbObjectId valIteration = pIter->objectId();
-           // arrayPnts.append(valIteration);
-
-            NcDb3dPolylineVertex* vertexix;
-            pCirc->openVertex(vertexix, valIteration, AcDb::kForWrite);
-
-            AcGePoint3d pnt = vertexix->position();
-            int x = pnt.x;
-            ads_printf(L"\nSelected Entity Handle: %x", x);
-            int y = pnt.y;
-            ads_printf(L"\nSelected Entity Handle: %x", y);
-            int z = pnt.z;
-            ads_printf(L"\nSelected Entity Handle: %x", z);
-            AcGePoint3d prt(x, y, z);
-            arrayPnts.append(prt);
         }
 
-        ncutPrintf(L"\nEnd Reactor");
-
-        //if (pCirc == NULL)
-        //    continue;
-
-        ////ads_printf(L"\nSelected Entity Handle: %x", pCirc->radius());
-
-        //}
-
         //acedSSFree(prbPick->resval.rlname);
+        
+       // acedSSFree(prbGrip->resval.rlname);
 
-        //acedSSFree(prbGrip->resval.rlname);
+        pWidgetChild->ui.pushButton->setVisible(false);
+        pWidgetChild->ui.pushButton_Update->setVisible(true);
 
-        //acutRelRb(prbGrip);
-
-        //acutRelRb(prbPick);
-
-        // //Continue with your other code
-        //pWidgetChild->ui.pushButton->setVisible(false);
-        //pWidgetChild->ui.pushButton_Update->setVisible(true);  
-
-
-    }
-
-
-    void virtual OtherWblock(AcDbDatabase* pDestDb, AcDbIdMapping& idMap, AcDbDatabase* pSrcDb){
-
-        ncutPrintf(L"\nOther WBlock");
-        ////
-        //AcDbBlockTable* pSrcBlockTable;
-        //pSrcDb->getSymbolTable(pSrcBlockTable, AcDb::kForRead);
-
-        //AcDbObjectId srcModelSpaceId;
-        //pSrcBlockTable->getAt(ACDB_MODEL_SPACE,
-        //    srcModelSpaceId);
-        //pSrcBlockTable->close();
-
-        //AcDbObjectId destId;
-        //if (pDestDb == pSrcDb) {
-        //    // It's a fastWblock, so we use the source objectId.
-        //    //
-        //    destId = srcModelSpaceId;
-        //}
-        //else {
-        //    AcDbIdPair idPair;
-        //    idPair.setKey(srcModelSpaceId);
-        //    idMap.compute(idPair);
-        //    destId = idPair.value();
-        //}
-
-        //AcDbBlockTableRecord* pDestBTR;
-        //acdbOpenAcDbObject((AcDbObject*&)pDestBTR,
-        //    destId, AcDb::kForRead, Adesk::kTrue);
-
-        //// END CODE APPEARING IN SDK DOCUMENT.
-
-        //AcDbIdPair idPair;
-        //idPair.setKey(srcModelSpaceId);
-        //idMap.compute(idPair);
-
-        //// idPair.value() is the correct destination objectId for any
-        //// wblock.  But, for a fastWblock, it cannot be used to access
-        //// the destination object until the wblock operation is over.
-
-        //acutPrintf(_T("\nCorrect destination BTR's ObjectId is:\t\t%Ld"),
-        //    idPair.value().asOldId());
-        //pDestBTR->close();
-
-        //// Incorrect way done here so that the wrong value can be
-        //// compared to the correct value
-        ////
-        //AcDbBlockTable* pDestBlockTable;
-        //pDestDb->getSymbolTable(pDestBlockTable, AcDb::kForRead);
-        //pDestBlockTable->getAt(ACDB_MODEL_SPACE,
-        //    pDestBTR, AcDb::kForRead);
-        //pDestBlockTable->close();
-
-        //acutPrintf(_T("\nIncorrect destination BTR's ObjectId is \t\t%Ld"),
-        //    pDestBTR->objectId().asOldId());
-
-        //pDestBTR->close();
-
-        //// source database Model Space BTR's ObjectId is shown to
-        //// demonstrate that this is what the incorrect method gets
-        ////
-        //pSrcDb->getSymbolTable(pSrcBlockTable, AcDb::kForRead);
-        //pSrcBlockTable->getAt(ACDB_MODEL_SPACE,
-        //    srcModelSpaceId);
-        //pSrcBlockTable->close();
-
-        //acutPrintf(_T("\nSource Database's Model Space BTR's ObjectId is \t%Ld"),
-        //    srcModelSpaceId.asOldId());
     }
 };
 
@@ -271,8 +158,6 @@ void initApp()
                           L"HELLOQTPALETTE",
                           ACRX_CMD_MODAL,
                           helloQtPaletteCmd);
-  /*acedRegCmds->addCommand(_T("HELLOQT_GROUP"), _T("ASDK_ALINES"),
-      _T("ALINES"), ACRX_CMD_MODAL, assocLines);*/
   ObjectToNotify::rxInit();
   acrxBuildClassHierarchy();
 }
@@ -280,7 +165,6 @@ void initApp()
 void uninitApp()
 {
   acedRegCmds->removeGroup(L"HELLOQT_GROUP");
-  /*acedRegCmds->removeGroup(L"ASDK_ALINES");*/
   deleteAcRxClass(ObjectToNotify::desc());
   if (m_pPalSet)
   {
@@ -297,6 +181,7 @@ acrxEntryPoint(AcRx::AppMsgCode msg, void* appId)
   case AcRx::kInitAppMsg:
     acrxDynamicLinker->unlockApplication(appId);
     acrxDynamicLinker->registerAppMDIAware(appId);
+
     testReactor = new AcEdReactor();
     acedEditor->addReactor(testReactor);
     initApp();
