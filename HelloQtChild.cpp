@@ -25,15 +25,18 @@ HelloQtChild::~HelloQtChild() {}
 
 AcGePoint3dArray HelloQtChild::getDataFromTable(){
     AcGePoint3dArray arrayPnt;
-    QTableWidgetItem* a;
+    QTableWidgetItem* a1, *a2, *a3;
 
     for (int i = 0; i < tableWidget->rowCount(); i++) {
-        a = tableWidget->item(i, 0);
-        int x = a->text().toInt();
-        a = tableWidget->item(i, 1);
-        int y = a->text().toInt();
-        a = tableWidget->item(i, 2);
-        int z = a->text().toInt();
+        a1 = tableWidget->item(i, 0);
+        a2 = tableWidget->item(i, 1);
+        a3 = tableWidget->item(i, 2);
+        if (a1 == NULL || a2 == NULL || a3 == NULL) {
+            continue;
+        }
+        int x = a1->text().toInt();
+        int y = a2->text().toInt();
+        int z = a3->text().toInt();
         AcGePoint3d pnt(x, y, z);
         arrayPnt.append(pnt);
     }
@@ -159,7 +162,7 @@ void HelloQtChild::PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity)
 
     return;
 }
-
+    
 AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode)
 {
     AcDb3dPolyline* pEnt;
@@ -167,7 +170,7 @@ AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode ope
     return pEnt;
 }
 
-void HelloQtChild::refreshPolyline() {
+void HelloQtChild::refreshPolyline(AcDbObjectId pId) {
 
    acutPrintf(L"\Refresh polyline start!\n");
 
@@ -176,8 +179,7 @@ void HelloQtChild::refreshPolyline() {
     /// <summary>
     /// /
     /// </summary>
-    AcDbObjectId idid;
-    AcDb3dPolyline* pEnt = selectEntity(idid, AcDb::kForWrite);
+    AcDb3dPolyline* pEnt = selectEntity(pId, AcDb::kForWrite);
 
     for (int row = 0; row < tableWidget->rowCount(); row++) {
         AcGePoint3d pnt;
@@ -205,13 +207,13 @@ void HelloQtChild::refreshPolyline() {
     for (pIter->start(); !pIter->done(); pIter->step()) {
         AcDbObjectId valIteration = pIter->objectId();
         NcDb3dPolylineVertex* vertex;
-        if (pEnt->openVertex(vertex, valIteration, AcDb::kForWrite) == Acad::eOk) {
+        if (pEnt->openVertex(vertex, valIteration, NcDb::kForWrite) == Nano::eOk) {
             vertex->setPosition(arrayPnts.at(row));
             vertex->close();
         }
         row++;
     }
-    
+    pEnt->close();
     delete pIter;
     acutPrintf(L"\Refresh polyline end!\n");
 };
@@ -377,8 +379,8 @@ void HelloQtChild::addRow() {
 }
 void HelloQtChild::acceptChanges() {
    
-    //refreshPolyline();
-    test();
+    refreshPolyline(idForRefresh);
+    //test();
 
     ui.pushButton_Update->setVisible(false);
     ui.pushButton->setVisible(true);

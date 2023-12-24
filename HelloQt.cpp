@@ -61,9 +61,14 @@ class AcEdReactor : public NcEditorReactor
             AcDb3dPolyline* pCirc = AcDb3dPolyline::cast(pEnt);
 
             pWidgetChild->updateDataInTable(pCirc);
+            pWidgetChild->idForRefresh = objId;
+
+            pEnt->close();
 
             if (pCirc == NULL)
                 continue;
+
+
 
         }
 
