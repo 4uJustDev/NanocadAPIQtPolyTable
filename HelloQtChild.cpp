@@ -15,6 +15,7 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
   ui.verticalLayout_2->addWidget(tableWidget); 
   
   ui.pushButton_Update->setVisible(false);
+  ui.lineEdit->setToolTip("Введите точность или будет использовано значение по умолчанию (2)");
 
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
   QObject::connect(ui.pushButton_2, SIGNAL(clicked()), this, SLOT(addRow()));
@@ -34,9 +35,9 @@ AcGePoint3dArray HelloQtChild::getDataFromTable(){
         if (a1 == NULL || a2 == NULL || a3 == NULL) {
             continue;
         }
-        int x = a1->text().toInt();
-        int y = a2->text().toInt();
-        int z = a3->text().toInt();
+        double x = a1->text().toDouble();
+        double y = a2->text().toDouble();
+        double z = a3->text().toDouble();
         AcGePoint3d pnt(x, y, z);
         arrayPnt.append(pnt);
     }
@@ -61,9 +62,9 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
         pEnt->openVertex(vertexix, valIteration, AcDb::kForWrite);
     
         AcGePoint3d pnt = vertexix->position();
-        int x = pnt.x;
-        int y = pnt.y;
-        int z = pnt.z;
+        double x = pnt.x;
+        double y = pnt.y;
+        double z = pnt.z;
         AcGePoint3d prt(x, y, z);
         arrayPnt.append(prt);
     }
@@ -78,13 +79,32 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
     
         tableWidget->insertRow(tableWidget->rowCount());
         AcGePoint3d pnt =  arrayPnt.getAt(row); 
-        int x = pnt.x;
-        int y = pnt.y;
-        int z = pnt.z;
+        double x = pnt.x;
+        double y = pnt.y;
+        double z = pnt.z;
+
+        int param = ui.comboBox->currentIndex();
+        int accuracy = ui.lineEdit->text().toInt();
+
+        if (accuracy<=0) {
+            accuracy = 2;
+        }
+        NCHAR fmtval[12];
+
+        /// <summary>
+        /// lp.fromStdWString(str);
+        /// lp.fromWCharArray(charData);
+        /// </summary>
+        ///
+
+        ncdbRToS(x, param, accuracy, fmtval);
+        tableWidget->setItem(row, 0, new QTableWidgetItem(QString::fromStdWString(fmtval)));
+        ncdbRToS(y, param, accuracy, fmtval);
+        tableWidget->setItem(row, 1, new QTableWidgetItem(QString::fromStdWString(fmtval)));
+        ncdbRToS(z, param, accuracy, fmtval);
+        tableWidget->setItem(row, 2, new QTableWidgetItem(QString::fromStdWString(fmtval)));
+
     
-        tableWidget->setItem(row, 0, new QTableWidgetItem(QString::number(x)));
-        tableWidget->setItem(row, 1, new QTableWidgetItem(QString::number(y)));
-        tableWidget->setItem(row, 2, new QTableWidgetItem(QString::number(z)));
     
     }
 }
@@ -140,6 +160,7 @@ AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
 
     // Set up persistent reactor link between polyline and AsdkObjectToNotify
     m_pPoly3d->addPersistentReactor(objId);
+    pNameList->close();
     m_pPoly3d->close();
 
     return polyID;
@@ -176,16 +197,14 @@ void HelloQtChild::refreshPolyline(AcDbObjectId pId) {
 
     QTableWidgetItem* a;
     AcGePoint3dArray arrayPnts;
-    /// <summary>
-    /// /
-    /// </summary>
+
     AcDb3dPolyline* pEnt = selectEntity(pId, AcDb::kForWrite);
 
     for (int row = 0; row < tableWidget->rowCount(); row++) {
         AcGePoint3d pnt;
         for (int column = 0; column < 3; column++) {
             a = tableWidget->item(row, column);
-            int val = a->text().toInt();
+            double val = a->text().toDouble();
             switch (column) {
             case 0:
                 pnt[X] = val;
@@ -218,141 +237,6 @@ void HelloQtChild::refreshPolyline(AcDbObjectId pId) {
     acutPrintf(L"\Refresh polyline end!\n");
 };
 
-//void HelloQtChild::editPolyline(){
-//
-//    AcDbObjectId polyId;
-//
-//    AcDb3dPolyline* pEnt = selectEntity(polyId, AcDb::kForWrite);
-//    
-//    // add each vertex to objectId array   
-//
-//    AcDbObjectIdArray vertexArray;
-//
-//    AcDbObjectIterator* pIter = pEnt->vertexIterator();
-//
-//    AcGePoint3dArray arrayPnt;
-//
-//    //Заполняем точки из выбранной полилинии
-//    for (pIter->start(); !pIter->done(); pIter->step()) {
-//        
-//        AcDbObjectId valIteration = pIter->objectId();
-//        vertexArray.append(valIteration);
-//
-//        NcDb3dPolylineVertex* vertexix;
-//        pEnt->openVertex(vertexix, valIteration, AcDb::kForWrite);
-//
-//        AcGePoint3d pnt = vertexix->position();
-//        int x = pnt.x;
-//        int y = pnt.y;
-//        int z = pnt.z;
-//        AcGePoint3d prt(x, y, z);
-//        arrayPnt.append(prt);
-//    }
-//
-//    delete pIter;
-//    int distance = vertexArray.length();
-//    //Создаем тоблицу из этих точек
-//    CustomTableWidget* tableWidget1 = new CustomTableWidget();
-//    tableWidget1->setRowCount(0);
-//
-//    for (int row = 0; row < distance; row++) {
-//
-//        tableWidget1->insertRow(tableWidget1->rowCount());
-//        AcGePoint3d pnt =  arrayPnt.getAt(row);
-//        int x = pnt.x;
-//        int y = pnt.y;
-//        int z = pnt.z;
-//
-//        tableWidget1->setItem(row, 0, new QTableWidgetItem(QString::number(x)));
-//        tableWidget1->setItem(row, 1, new QTableWidgetItem(QString::number(y)));
-//        tableWidget1->setItem(row, 2, new QTableWidgetItem(QString::number(z)));
-//
-//    }
-//
-//    acutPrintf(L"\nВы начали изменять выбранный AcDb3dPolyline!\n");
-//
-//    QPushButton* cancelButton = new QPushButton("Cancel");
-//
-//    QObject::connect(cancelButton, &QPushButton::clicked, [&, tableWidget1, vertexArray, pEnt]() {
-//        acutPrintf(L"\nCancel!\n");
-//        QTableWidgetItem* a;
-//        AcGePoint3dArray arrayPnts;
-//
-//        for (int row = 0; row < vertexArray.length(); row++) {
-//            AcGePoint3d pnt;
-//            for (int column = 0; column < 3; column++) {
-//                a = tableWidget1->item(row, column);
-//                int val = a->text().toInt();
-//                switch (column) {
-//                case 0:
-//                    pnt[X] = val;
-//                    break;
-//                case 1:
-//                    pnt[Y] = val;
-//                    break;
-//                case 2:
-//                    pnt[Z] = val;
-//                    break;
-//                }
-//            }
-//            arrayPnts.append(pnt);
-//        }
-//        
-//        AcDbObjectIterator* pIter = pEnt->vertexIterator();
-//        int row = 0;
-//
-//        for (pIter->start(); !pIter->done(); pIter->step()) {
-//            AcDbObjectId valIteration = pIter->objectId();
-//            NcDb3dPolylineVertex* vertex;
-//            if (pEnt->openVertex(vertex, valIteration, AcDb::kForWrite) == Acad::eOk) {
-//                vertex->setPosition(arrayPnts.at(row));
-//                vertex->close();
-//            }
-//            row++;
-//        }
-//
-//        delete pIter;
-//        tableWidget1->hide();
-//        });
-//
-//    
-//
-//    // Add widgets to the layout
-//    verticalValue->addWidget(tableWidget1);
-//    verticalValue->addWidget(cancelButton);
-//    pEnt->close();
-//}
-
-void HelloQtChild::test() {
-    ads_real x = 17.5;
-
-    NCHAR fmtval[12];
-
-    // Точность - 3-ий параметр: 4 места в первом
-
-    // Вызвать, 2 места в другие.
-
-    ncdbRToS(x, 1, 4, fmtval); // Режим 1 = научный
-
-    acutPrintf(L"Научный Значение, отформатированное как %s\n ", fmtval);
-
-    acdbRToS(x, 2, 2, fmtval); // Режим 2 = десятичное число
-
-    acutPrintf(L"Десятичное Значение, отформатированное как %s\n ", fmtval);
-
-    acdbRToS(x, 3, 2, fmtval); // Режим 3 = разработка
-
-    acutPrintf(L"Разработка Значение, отформатированное как %s\n ", fmtval);
-
-    acdbRToS(x, 4, 2, fmtval); // Режим 4 = архитектурный
-
-    acutPrintf(L"Архитектурный Значение, отформатированное как %s\n ", fmtval);
-
-    acdbRToS(x, 5, 2, fmtval); // Режим 5 = дробный
-
-    acutPrintf(L"Дробный Значение, отформатированное как %s\n ", fmtval);
-};
-
 void HelloQtChild::addCoordinate()
 {
     try
@@ -360,12 +244,6 @@ void HelloQtChild::addCoordinate()
         AcGePoint3dArray some_points = getDataFromTable();
 
         AcDbObjectId mId = Create3dPolyline(some_points);
-
-        //AcDb3dPolyline* pEnt;
-
-        //Acad::ErrorStatus es = acdbOpenObject(pEnt, mId, AcDb::kForWrite, false);
-
-        //pEnt->close();
 
     }
     catch (const std::exception& e)
@@ -380,7 +258,6 @@ void HelloQtChild::addRow() {
 void HelloQtChild::acceptChanges() {
    
     refreshPolyline(idForRefresh);
-    //test();
 
     ui.pushButton_Update->setVisible(false);
     ui.pushButton->setVisible(true);

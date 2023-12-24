@@ -24,7 +24,6 @@ public:
   void PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity);
   AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode);
   void refreshPolyline(AcDbObjectId pId);
-  void test();
   //Kostil
   AcDbObjectId idForRefresh;
 

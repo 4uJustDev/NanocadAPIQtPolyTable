@@ -12,6 +12,8 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -26,13 +28,15 @@ public:
     QPushButton *pushButton_Update;
     QVBoxLayout *verticalLayout_2;
     QPushButton *pushButton_2;
+    QHBoxLayout *horizontalLayout;
+    QLineEdit *lineEdit;
     QComboBox *comboBox;
 
     void setupUi(QWidget *HelloQtChildClass)
     {
         if (HelloQtChildClass->objectName().isEmpty())
             HelloQtChildClass->setObjectName(QString::fromUtf8("HelloQtChildClass"));
-        HelloQtChildClass->resize(659, 561);
+        HelloQtChildClass->resize(504, 561);
         verticalLayout = new QVBoxLayout(HelloQtChildClass);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -58,6 +62,14 @@ public:
 
         verticalLayout->addLayout(verticalLayout_2);
 
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        lineEdit = new QLineEdit(HelloQtChildClass);
+        lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
+
+        horizontalLayout->addWidget(lineEdit);
+
         comboBox = new QComboBox(HelloQtChildClass);
         comboBox->addItem(QString());
         comboBox->addItem(QString());
@@ -66,7 +78,10 @@ public:
         comboBox->addItem(QString());
         comboBox->setObjectName(QString::fromUtf8("comboBox"));
 
-        verticalLayout->addWidget(comboBox);
+        horizontalLayout->addWidget(comboBox);
+
+
+        verticalLayout->addLayout(horizontalLayout);
 
 
         retranslateUi(HelloQtChildClass);

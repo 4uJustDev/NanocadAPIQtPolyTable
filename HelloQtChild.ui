@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>659</width>
+    <width>504</width>
     <height>561</height>
    </rect>
   </property>
@@ -40,33 +40,40 @@
     </layout>
    </item>
    <item>
-    <widget class="QComboBox" name="comboBox">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <property name="text">
-       <string>Scientific</string>
-      </property>
+      <widget class="QLineEdit" name="lineEdit"/>
      </item>
      <item>
-      <property name="text">
-       <string>Decimal</string>
-      </property>
+      <widget class="QComboBox" name="comboBox">
+       <item>
+        <property name="text">
+         <string>Scientific</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Decimal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Engineering </string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Architectural</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Fractional</string>
+        </property>
+       </item>
+      </widget>
      </item>
-     <item>
-      <property name="text">
-       <string>Engineering </string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Architectural</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Fractional</string>
-      </property>
-     </item>
-    </widget>
+    </layout>
    </item>
   </layout>
  </widget>
