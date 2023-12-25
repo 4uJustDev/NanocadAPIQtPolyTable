@@ -13,8 +13,13 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
 
   tableWidget = new CustomTableWidget(this);
   ui.verticalLayout_2->addWidget(tableWidget); 
-  
-  ui.lineEdit->setToolTip("Введите точность или будет использовано значение по умолчанию (2)");
+
+  label = new QLabel(this);
+  ui.verticalLayout_2->addWidget(label);
+  label->setVisible(false);
+  label->setAlignment(Qt::AlignCenter);
+
+  ui.lineEdit->setToolTip(QString::fromUtf16(u"Введите точность или будет использовано значение по умолчанию: 2"));
 
   QColor col1 = QColor::fromRgb(144, 238, 144);
   QColor col2 = QColor::fromRgb(163, 172, 238);
@@ -117,8 +122,29 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
     }
 }
 
-void HelloQtChild::insertStub() {
-    this->tableWidget->setRowCount(0);
+void HelloQtChild::insertStub(long count) {
+    unshowing();
+    label->setText(QString::fromUtf16(u"<b>Выбрано %1 полилинии").arg(count));
+}
+
+void HelloQtChild::showing() {
+    this->ui.pushButton_2->setVisible(true);
+    this->ui.pushButton->setVisible(true);
+    this->ui.pushButton_Update->setVisible(true);
+    this->ui.comboBox->setVisible(true);
+    this->ui.lineEdit->setVisible(true);
+    this->tableWidget->setVisible(true);
+    this->label->setVisible(false);
+}
+
+void HelloQtChild::unshowing() {
+    this->ui.pushButton_2->setVisible(false);
+    this->ui.pushButton->setVisible(false);
+    this->ui.pushButton_Update->setVisible(false);
+    this->ui.comboBox->setVisible(false);
+    this->ui.lineEdit->setVisible(false);   
+    this->tableWidget->setVisible(false);
+    this->label->setVisible(true);
 }
 
 AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
@@ -255,6 +281,7 @@ void HelloQtChild::addCoordinate()
 void HelloQtChild::addRow() {
     tableWidget->insertRow(tableWidget->rowCount());
 }
+
 void HelloQtChild::acceptChanges() {
    
     refreshPolyline();

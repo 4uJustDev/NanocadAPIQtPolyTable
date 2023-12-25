@@ -29,6 +29,8 @@ class AcEdReactor : public NcEditorReactor
 
         ncutPrintf(L"\nWorking Reactor");
 
+        pWidgetChild->showing();
+
          //Get the selection set
         struct resbuf* prbGrip = NULL;
 
@@ -66,13 +68,12 @@ class AcEdReactor : public NcEditorReactor
                     continue;
 
                 pCirc->close();
-                pWidgetChild->ui.pushButton_2->setVisible(true);
+                pWidgetChild->showing();
 
             }
         }
         else {
-            pWidgetChild->insertStub();
-            pWidgetChild->ui.pushButton_2->setVisible(false);
+            pWidgetChild->insertStub(pickLen);
         }
 
 

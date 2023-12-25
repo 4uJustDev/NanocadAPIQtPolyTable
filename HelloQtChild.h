@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QLabel>
 #include "ui_HelloQtChild.h"
 #include "CustomTableWidget.h"
 
@@ -13,11 +14,15 @@ public:
   ~HelloQtChild();
 
   CustomTableWidget* tableWidget;
+  QLabel* label;
 
   //Manipulations with Table
   AcGePoint3dArray getDataFromTable();	
   void updateDataInTable(AcDb3dPolyline* pEnt);
-  void insertStub();
+  void insertStub(long count);
+
+  void showing();
+  void unshowing();
 
   //Manipulation wuth NcDbEntities
   AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
