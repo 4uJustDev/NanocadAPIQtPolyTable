@@ -201,6 +201,8 @@ AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode ope
 
 void HelloQtChild::refreshPolyline() {
 
+    addCoordinate();
+
     struct resbuf* prbGrip = NULL;
 
     struct resbuf* prbPick = NULL;
@@ -221,31 +223,10 @@ void HelloQtChild::refreshPolyline() {
     acdbGetObjectId(objId, entres);
 
     AcDbEntity* pEnt;
-    acdbOpenAcDbEntity(pEnt, objId, kForRead);
+    acdbOpenAcDbEntity(pEnt, objId, kForWrite);
 
-    AcDb3dPolyline* pLine = AcDb3dPolyline::cast(pEnt);
-
-    if (pLine == NULL)
-        return;
-    AcGePoint3dArray arrayPnts = getDataFromTable();
-
-    acdbOpenObject(pLine, pLine->objectId(), kForWrite);
-
-    AcDbObjectIterator* pIter = pLine->vertexIterator();
-    int row = 0;
-
-    for (pIter->start(); !pIter->done(); pIter->step()) {
-        AcDbObjectId valIteration = pIter->objectId();
-        NcDb3dPolylineVertex* vertex;
-        if (pLine->openVertex(vertex, valIteration, NcDb::kForWrite) == Nano::eOk) {
-            vertex->setPosition(arrayPnts.at(row));
-            vertex->close();
-        }
-        row++;
-    }
-    delete pIter;
-
-    acdbEntUpd(entres);
+    pEnt->erase();
+    pEnt->close();
 
     acedSSFree(prbPick->resval.rlname);
 
