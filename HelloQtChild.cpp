@@ -16,6 +16,21 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
   
   ui.lineEdit->setToolTip("Введите точность или будет использовано значение по умолчанию (2)");
 
+  QColor col1 = QColor::fromRgb(144, 238, 144);
+  QColor col2 = QColor::fromRgb(163, 172, 238);
+  QColor col3 = QColor::fromRgb(238, 236, 167);
+
+  if (col1.isValid() && col2.isValid() && col3.isValid()) {
+      QString qss1 = QString("background-color: %1").arg(col1.name());
+      QString qss2 = QString("background-color: %1").arg(col2.name());
+      QString qss3 = QString("background-color: %1").arg(col3.name());
+
+      ui.pushButton->setStyleSheet(qss1);
+      ui.pushButton_2->setStyleSheet(qss2);
+      ui.pushButton_Update->setStyleSheet(qss3);
+  }
+
+
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
   QObject::connect(ui.pushButton_2, SIGNAL(clicked()), this, SLOT(addRow()));
   QObject::connect(ui.pushButton_Update, SIGNAL(clicked()), this, SLOT(acceptChanges()));

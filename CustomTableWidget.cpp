@@ -12,8 +12,7 @@ CustomTableWidget::CustomTableWidget(QWidget* parent) : QTableWidget(parent)
     setRowCount(rows);
     QStringList listHeaders;
     listHeaders << "X" << "Y" << "Z";
-    setHorizontalHeaderLabels(listHeaders);
-    horizontalHeaderItem(0)->setTextAlignment(Qt::AlignLeft);
+    setHorizontalHeaderLabels(listHeaders); 
 }
 
 CustomTableWidget::~CustomTableWidget() {};
