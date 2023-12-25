@@ -27,9 +27,8 @@ class AcEdReactor : public NcEditorReactor
 {
     void virtual pickfirstModified() override {
 
-        ncutPrintf(L"\nWorking Reactor");
-
         pWidgetChild->showing();
+        pWidgetChild->ui.pushButton_Update->setVisible(false);
 
          //Get the selection set
         struct resbuf* prbGrip = NULL;
@@ -59,16 +58,17 @@ class AcEdReactor : public NcEditorReactor
                 acdbOpenAcDbEntity(pEnt, objId, kForWrite);
 
                 AcGePoint3dArray arrayPnts;
-                AcDb3dPolyline* pCirc = AcDb3dPolyline::cast(pEnt);
+                AcDb3dPolyline* polyline = AcDb3dPolyline::cast(pEnt);
 
-                pWidgetChild->updateDataInTable(pCirc);
+                pWidgetChild->updateDataInTable(polyline);
                 pEnt->close();
 
-                if (pCirc == NULL)
+                if (polyline == NULL)
                     continue;
 
-                pCirc->close();
+                polyline->close();
                 pWidgetChild->showing();
+                pWidgetChild->ui.pushButton_Update->setVisible(true);
 
             }
         }
@@ -80,8 +80,6 @@ class AcEdReactor : public NcEditorReactor
         acedSSFree(prbPick->resval.rlname);
 
         acutRelRb(prbPick);
-
-        ncutPrintf(L"\nWorking Reactor END");
     }
 };
 
@@ -159,9 +157,9 @@ static AcEdReactor* testReactor = NULL;
 
 void initApp()
 {
-  acedRegCmds->addCommand(L"HELLOQT_GROUP",
-                          L"_HELLOQTPALETTE",
-                          L"HELLOQTPALETTE",
+  acedRegCmds->addCommand(L"PolyQtTable_GROUP",
+                          L"_PolyQtTable",
+                          L"PolyQtTable",
                           ACRX_CMD_MODAL,
                           helloQtPaletteCmd);
 
@@ -174,7 +172,7 @@ void initApp()
 
 void uninitApp()
 {
-  acedRegCmds->removeGroup(L"HELLOQT_GROUP");
+  acedRegCmds->removeGroup(L"PolyQtTable_GROUP");
 
   deleteAcRxClass(ObjectToNotify::desc());
 

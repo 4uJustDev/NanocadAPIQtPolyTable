@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_HelloQtChild_t {
     QByteArrayData data[6];
-    char stringdata0[59];
+    char stringdata0[56];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,14 +33,14 @@ struct qt_meta_stringdata_HelloQtChild_t {
 static const qt_meta_stringdata_HelloQtChild_t qt_meta_stringdata_HelloQtChild = {
     {
 QT_MOC_LITERAL(0, 0, 12), // "HelloQtChild"
-QT_MOC_LITERAL(1, 13, 13), // "addCoordinate"
-QT_MOC_LITERAL(2, 27, 0), // ""
-QT_MOC_LITERAL(3, 28, 6), // "addRow"
-QT_MOC_LITERAL(4, 35, 9), // "deleteRow"
-QT_MOC_LITERAL(5, 45, 13) // "acceptChanges"
+QT_MOC_LITERAL(1, 13, 10), // "createPoly"
+QT_MOC_LITERAL(2, 24, 0), // ""
+QT_MOC_LITERAL(3, 25, 6), // "addRow"
+QT_MOC_LITERAL(4, 32, 9), // "deleteRow"
+QT_MOC_LITERAL(5, 42, 13) // "acceptChanges"
 
     },
-    "HelloQtChild\0addCoordinate\0\0addRow\0"
+    "HelloQtChild\0createPoly\0\0addRow\0"
     "deleteRow\0acceptChanges"
 };
 #undef QT_MOC_LITERAL
@@ -79,7 +79,7 @@ void HelloQtChild::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id
         auto *_t = static_cast<HelloQtChild *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->addCoordinate(); break;
+        case 0: _t->createPoly(); break;
         case 1: _t->addRow(); break;
         case 2: _t->deleteRow(); break;
         case 3: _t->acceptChanges(); break;

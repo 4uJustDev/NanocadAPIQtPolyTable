@@ -13,6 +13,7 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
 
   tableWidget = new CustomTableWidget(this);
   ui.verticalLayout_2->addWidget(tableWidget); 
+  this->ui.pushButton_Update->setVisible(false);
 
   label = new QLabel(this);
   ui.verticalLayout_2->addWidget(label);
@@ -39,7 +40,7 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
   }
 
 
-  QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
+  QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(createPoly()));
   QObject::connect(ui.pushButton_2, SIGNAL(clicked()), this, SLOT(addRow()));
   QObject::connect(ui.pushButton_Update, SIGNAL(clicked()), this, SLOT(acceptChanges()));
   QObject::connect(ui.pushButton_delete, SIGNAL(clicked()), this, SLOT(deleteRow()));
@@ -49,18 +50,18 @@ HelloQtChild::~HelloQtChild() {}
 
 AcGePoint3dArray HelloQtChild::getDataFromTable(){
     AcGePoint3dArray arrayPnt;
-    QTableWidgetItem* a1, *a2, *a3;
+    QTableWidgetItem* item1, * item2, * item3;
 
     for (int i = 0; i < tableWidget->rowCount(); i++) {
-        a1 = tableWidget->item(i, 0);
-        a2 = tableWidget->item(i, 1);
-        a3 = tableWidget->item(i, 2);
-        if (a1 == NULL || a2 == NULL || a3 == NULL || a1->text() == "d" || a2->text() == "d" || a3->text() == "d") {
+        item1 = tableWidget->item(i, 0);
+        item2 = tableWidget->item(i, 1);
+        item3 = tableWidget->item(i, 2);
+        if (item1 == NULL || item2 == NULL || item3 == NULL) {
             continue;
         }
-        double x = a1->text().toDouble();
-        double y = a2->text().toDouble();
-        double z = a3->text().toDouble();
+        double x = item1->text().toDouble();
+        double y = item2->text().toDouble();
+        double z = item3->text().toDouble();
         AcGePoint3d pnt(x, y, z);
         arrayPnt.append(pnt);
     }
@@ -68,9 +69,7 @@ AcGePoint3dArray HelloQtChild::getDataFromTable(){
 }
 
 void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
-{
-    AcDbObjectIdArray vertexArray;
-    
+{   
     AcDbObjectIterator* pIter = pEnt->vertexIterator();
     
     AcGePoint3dArray arrayPnt;
@@ -79,10 +78,9 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
     for (pIter->start(); !pIter->done(); pIter->step()) {
         
         AcDbObjectId valIteration = pIter->objectId();
-        vertexArray.append(valIteration);
     
         NcDb3dPolylineVertex* vertexix;
-        pEnt->openVertex(vertexix, valIteration, AcDb::kForWrite);
+        pEnt->openVertex(vertexix, valIteration, AcDb::kForRead);
     
         AcGePoint3d pnt = vertexix->position();
         double x = pnt.x;
@@ -93,20 +91,21 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
 
         vertexix->close();
     }
-    
     delete pIter;
-    int distance = vertexArray.length();
+    
 
     //Обновляем таблицу
     tableWidget->setRowCount(0);
-    
+    int distance = arrayPnt.length();
+
     for (int row = 0; row < distance; row++) {
     
         tableWidget->insertRow(tableWidget->rowCount());
+
         AcGePoint3d pnt =  arrayPnt.getAt(row); 
         double x = pnt.x;
         double y = pnt.y;
-        double z = pnt.z;
+        double z = pnt.z;   
 
         int param = ui.comboBox->currentIndex();
         int accuracy = ui.lineEdit->text().toInt();
@@ -114,6 +113,7 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
         if (accuracy<=0) {
             accuracy = 2;
         }
+
         NCHAR fmtval[12];
 
         ncdbRToS(x, param, accuracy, fmtval);
@@ -134,7 +134,7 @@ void HelloQtChild::insertStub(long count) {
 void HelloQtChild::showing() {
     this->ui.pushButton_2->setVisible(true);
     this->ui.pushButton->setVisible(true);
-    this->ui.pushButton_Update->setVisible(true);
+    this->ui.pushButton_delete->setVisible(true);
     this->ui.comboBox->setVisible(true);
     this->ui.lineEdit->setVisible(true);
     this->tableWidget->setVisible(true);
@@ -144,7 +144,7 @@ void HelloQtChild::showing() {
 void HelloQtChild::unshowing() {
     this->ui.pushButton_2->setVisible(false);
     this->ui.pushButton->setVisible(false);
-    this->ui.pushButton_Update->setVisible(false);
+    this->ui.pushButton_delete->setVisible(false);
     this->ui.comboBox->setVisible(false);
     this->ui.lineEdit->setVisible(false);   
     this->tableWidget->setVisible(false);
@@ -168,7 +168,7 @@ AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
     // Open the named object dictionary, check if there is
     // an entry with the key "ASDK_DICT".  If not, create a
     // dictionary and add it.
-    // 
+
     AcDbDictionary* pNamedObj;
     AcDbDictionary* pNameList;
     pDb->getNamedObjectsDictionary(pNamedObj,
@@ -183,24 +183,23 @@ AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
     }
     pNamedObj->close();
     AcDbLine;
-    // Create the AsdkObjectToNotify for lineA
-    //
+
+    // Create the AsdkObjectToNotify for polyline
+
     ObjectToNotify* pObj = new ObjectToNotify(this);
     pObj->eLinkage(polyID);
 
     AcDbObjectId objId;
-    if ((pNameList->getAt(_T("object_to_notify_A"), objId))
+    if ((pNameList->getAt(_T("object_to_notify"), objId))
         == Acad::eKeyNotFound)
     {
-        pNameList->setAt(_T("object_to_notify_A"), pObj, objId);
+        pNameList->setAt(_T("object_to_notify"), pObj, objId);
         pObj->close();
     }
     else {
         delete pObj;
-        ads_printf(_T("object_to_notify_A already exists\n"));
     }
 
-    // Set up persistent reactor link between polyline and AsdkObjectToNotify
     m_pPoly3d->addPersistentReactor(objId);
     pNameList->close();
     m_pPoly3d->close();
@@ -225,17 +224,10 @@ void HelloQtChild::PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity)
 
     return;
 }
-    
-AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode)
-{
-    AcDb3dPolyline* pEnt;
-    acdbOpenObject(pEnt, eId, openMode);
-    return pEnt;
-}
 
 void HelloQtChild::refreshPolyline() {
 
-    addCoordinate();
+    createPoly();
 
     struct resbuf* prbGrip = NULL;
 
@@ -267,13 +259,13 @@ void HelloQtChild::refreshPolyline() {
     acutRelRb(prbPick);
 };
 
-void HelloQtChild::addCoordinate()
+void HelloQtChild::createPoly()
 {
     try
     {
-        AcGePoint3dArray some_points = getDataFromTable();
+        AcGePoint3dArray points = getDataFromTable();
 
-        AcDbObjectId mId = Create3dPolyline(some_points);
+        Create3dPolyline(points);
 
     }
     catch (const std::exception& e)
@@ -285,14 +277,15 @@ void HelloQtChild::addCoordinate()
 void HelloQtChild::addRow() {
     tableWidget->insertRow(tableWidget->rowCount());
 }
+
 void HelloQtChild::deleteRow() {
     int row = this->tableWidget->currentRow();
     this->tableWidget->removeRow(row);
 }
 
-
 void HelloQtChild::acceptChanges() {
    
     refreshPolyline();
+    this->ui.pushButton_Update->setVisible(false);
 }
 

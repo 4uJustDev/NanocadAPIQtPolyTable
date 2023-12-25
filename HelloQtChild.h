@@ -28,11 +28,10 @@ public:
   AcDbObjectId Create3dPolyline(AcGePoint3dArray points);
   //static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
   void PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity);
-  AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode);
   void refreshPolyline();
 
 private slots:
-  void addCoordinate();
+  void createPoly();
   void addRow();
   void deleteRow();
   void acceptChanges();
