@@ -44,29 +44,37 @@ class AcEdReactor : public NcEditorReactor
             return;
 
         acedSSLength(prbPick->resval.rlname, &pickLen);
+        
+        if (pickLen == 1) {
+            for (int i = 0; i < pickLen; i++)
+            {
+                ads_name entres;
+                AcDbObjectId objId;
+                acedSSName(prbPick->resval.rlname, i, entres);
+                acdbGetObjectId(objId, entres);
 
-        for (int i = 0; i < pickLen; i++)
-        {
-            ads_name entres;
-            AcDbObjectId objId;
-            acedSSName(prbPick->resval.rlname, i, entres);
-            acdbGetObjectId(objId, entres);
+                AcDbEntity* pEnt;
+                acdbOpenAcDbEntity(pEnt, objId, kForWrite);
 
-            AcDbEntity* pEnt;
-            acdbOpenAcDbEntity(pEnt, objId, kForWrite);
+                AcGePoint3dArray arrayPnts;
+                AcDb3dPolyline* pCirc = AcDb3dPolyline::cast(pEnt);
 
-            AcGePoint3dArray arrayPnts;
-            AcDb3dPolyline* pCirc = AcDb3dPolyline::cast(pEnt);
+                pWidgetChild->updateDataInTable(pCirc);
+                pEnt->close();
 
-            pWidgetChild->updateDataInTable(pCirc);
-            pEnt->close();
+                if (pCirc == NULL)
+                    continue;
 
-            if (pCirc == NULL)
-                continue;
+                pCirc->close();
+                pWidgetChild->ui.pushButton_2->setVisible(true);
 
-            pCirc->close();
-
+            }
         }
+        else {
+            pWidgetChild->insertStub();
+            pWidgetChild->ui.pushButton_2->setVisible(false);
+        }
+
 
         acedSSFree(prbPick->resval.rlname);
 

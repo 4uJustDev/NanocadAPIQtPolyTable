@@ -16,7 +16,8 @@ public:
 
   //Manipulations with Table
   AcGePoint3dArray getDataFromTable();	
-  void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt);
+  void updateDataInTable(AcDb3dPolyline* pEnt);
+  void insertStub();
 
   //Manipulation wuth NcDbEntities
   AcDbObjectId Create3dPolyline(AcGePoint3dArray points);

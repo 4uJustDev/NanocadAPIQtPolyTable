@@ -46,7 +46,7 @@ AcGePoint3dArray HelloQtChild::getDataFromTable(){
         a1 = tableWidget->item(i, 0);
         a2 = tableWidget->item(i, 1);
         a3 = tableWidget->item(i, 2);
-        if (a1 == NULL || a2 == NULL || a3 == NULL) {
+        if (a1 == NULL || a2 == NULL || a3 == NULL || a1->text() == "d" || a2->text() == "d" || a3->text() == "d") {
             continue;
         }
         double x = a1->text().toDouble();
@@ -115,6 +115,10 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
         tableWidget->setItem(row, 2, new QTableWidgetItem(QString::fromStdWString(fmtval)));
     
     }
+}
+
+void HelloQtChild::insertStub() {
+    this->tableWidget->setRowCount(0);
 }
 
 AcDbObjectId HelloQtChild::Create3dPolyline(AcGePoint3dArray points)
@@ -219,7 +223,7 @@ void HelloQtChild::refreshPolyline() {
 
     ads_name entres;
     AcDbObjectId objId;
-    acedSSName(prbPick->resval.rlname, pickLen -1, entres);
+    acedSSName(prbPick->resval.rlname, 0, entres);
     acdbGetObjectId(objId, entres);
 
     AcDbEntity* pEnt;
