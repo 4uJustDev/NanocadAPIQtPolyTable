@@ -14,7 +14,6 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
   tableWidget = new CustomTableWidget(this);
   ui.verticalLayout_2->addWidget(tableWidget); 
   
-  ui.pushButton_Update->setVisible(false);
   ui.lineEdit->setToolTip("Введите точность или будет использовано значение по умолчанию (2)");
 
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
@@ -67,6 +66,8 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
         double z = pnt.z;
         AcGePoint3d prt(x, y, z);
         arrayPnt.append(prt);
+
+        vertexix->close();
     }
     
     delete pIter;
@@ -91,20 +92,12 @@ void HelloQtChild::updateDataInTable(AcDb3dPolyline* pEnt)
         }
         NCHAR fmtval[12];
 
-        /// <summary>
-        /// lp.fromStdWString(str);
-        /// lp.fromWCharArray(charData);
-        /// </summary>
-        ///
-
         ncdbRToS(x, param, accuracy, fmtval);
         tableWidget->setItem(row, 0, new QTableWidgetItem(QString::fromStdWString(fmtval)));
         ncdbRToS(y, param, accuracy, fmtval);
         tableWidget->setItem(row, 1, new QTableWidgetItem(QString::fromStdWString(fmtval)));
         ncdbRToS(z, param, accuracy, fmtval);
         tableWidget->setItem(row, 2, new QTableWidgetItem(QString::fromStdWString(fmtval)));
-
-    
     
     }
 }
@@ -191,50 +184,57 @@ AcDb3dPolyline* HelloQtChild::selectEntity(AcDbObjectId& eId, AcDb::OpenMode ope
     return pEnt;
 }
 
-void HelloQtChild::refreshPolyline(AcDbObjectId pId) {
+void HelloQtChild::refreshPolyline() {
 
-   acutPrintf(L"\Refresh polyline start!\n");
+    struct resbuf* prbGrip = NULL;
 
-    QTableWidgetItem* a;
-    AcGePoint3dArray arrayPnts;
+    struct resbuf* prbPick = NULL;
 
-    AcDb3dPolyline* pEnt = selectEntity(pId, AcDb::kForWrite);
+    // Get the selection sets
 
-    for (int row = 0; row < tableWidget->rowCount(); row++) {
-        AcGePoint3d pnt;
-        for (int column = 0; column < 3; column++) {
-            a = tableWidget->item(row, column);
-            double val = a->text().toDouble();
-            switch (column) {
-            case 0:
-                pnt[X] = val;
-                break;
-            case 1:
-                pnt[Y] = val;
-                break;
-            case 2:
-                pnt[Z] = val;
-                break;
-            }
-        }
-        arrayPnts.append(pnt);
-    }
-    
-    AcDbObjectIterator* pIter = pEnt->vertexIterator();
+    ncedSSGetFirst(&prbGrip, &prbPick);
+
+    long gripLen, pickLen;
+    if (prbPick->restype != RTPICKS)
+        return;
+
+    acedSSLength(prbPick->resval.rlname, &pickLen);
+
+    ads_name entres;
+    AcDbObjectId objId;
+    acedSSName(prbPick->resval.rlname, pickLen -1, entres);
+    acdbGetObjectId(objId, entres);
+
+    AcDbEntity* pEnt;
+    acdbOpenAcDbEntity(pEnt, objId, kForRead);
+
+    AcDb3dPolyline* pLine = AcDb3dPolyline::cast(pEnt);
+
+    if (pLine == NULL)
+        return;
+    AcGePoint3dArray arrayPnts = getDataFromTable();
+
+    acdbOpenObject(pLine, pLine->objectId(), kForWrite);
+
+    AcDbObjectIterator* pIter = pLine->vertexIterator();
     int row = 0;
-    
+
     for (pIter->start(); !pIter->done(); pIter->step()) {
         AcDbObjectId valIteration = pIter->objectId();
         NcDb3dPolylineVertex* vertex;
-        if (pEnt->openVertex(vertex, valIteration, NcDb::kForWrite) == Nano::eOk) {
+        if (pLine->openVertex(vertex, valIteration, NcDb::kForWrite) == Nano::eOk) {
             vertex->setPosition(arrayPnts.at(row));
             vertex->close();
         }
         row++;
     }
-    pEnt->close();
     delete pIter;
-    acutPrintf(L"\Refresh polyline end!\n");
+
+    acdbEntUpd(entres);
+
+    acedSSFree(prbPick->resval.rlname);
+
+    acutRelRb(prbPick);
 };
 
 void HelloQtChild::addCoordinate()
@@ -257,9 +257,6 @@ void HelloQtChild::addRow() {
 }
 void HelloQtChild::acceptChanges() {
    
-    refreshPolyline(idForRefresh);
-
-    ui.pushButton_Update->setVisible(false);
-    ui.pushButton->setVisible(true);
+    refreshPolyline();
 }
 

@@ -24,8 +24,8 @@ class Ui_HelloQtChildClass
 {
 public:
     QVBoxLayout *verticalLayout;
-    QPushButton *pushButton;
     QPushButton *pushButton_Update;
+    QPushButton *pushButton;
     QVBoxLayout *verticalLayout_2;
     QPushButton *pushButton_2;
     QHBoxLayout *horizontalLayout;
@@ -41,15 +41,15 @@ public:
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        pushButton = new QPushButton(HelloQtChildClass);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-
-        verticalLayout->addWidget(pushButton);
-
         pushButton_Update = new QPushButton(HelloQtChildClass);
         pushButton_Update->setObjectName(QString::fromUtf8("pushButton_Update"));
 
         verticalLayout->addWidget(pushButton_Update);
+
+        pushButton = new QPushButton(HelloQtChildClass);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+
+        verticalLayout->addWidget(pushButton);
 
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setSpacing(6);
@@ -92,8 +92,8 @@ public:
     void retranslateUi(QWidget *HelloQtChildClass)
     {
         HelloQtChildClass->setWindowTitle(QCoreApplication::translate("HelloQtChildClass", "HelloQtChild", nullptr));
+        pushButton_Update->setText(QCoreApplication::translate("HelloQtChildClass", "\320\230\320\267\320\274\320\265\320\275\320\270\321\202\321\214", nullptr));
         pushButton->setText(QCoreApplication::translate("HelloQtChildClass", "\320\241\320\276\320\267\320\264\320\260\321\202\321\214", nullptr));
-        pushButton_Update->setText(QCoreApplication::translate("HelloQtChildClass", "\320\237\320\276\320\264\321\202\320\262\320\265\321\200\320\264\320\270\321\202\321\214", nullptr));
         pushButton_2->setText(QCoreApplication::translate("HelloQtChildClass", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214 \321\201\321\202\321\200\320\276\320\272\321\203", nullptr));
         comboBox->setItemText(0, QCoreApplication::translate("HelloQtChildClass", "Scientific", nullptr));
         comboBox->setItemText(1, QCoreApplication::translate("HelloQtChildClass", "Decimal", nullptr));

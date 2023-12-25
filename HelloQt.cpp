@@ -25,8 +25,6 @@ HelloQtChild* pWidgetChild;
 
 class AcEdReactor : public NcEditorReactor
 {
-
-
     void virtual pickfirstModified() override {
 
         ncutPrintf(L"\nWorking Reactor");
@@ -40,7 +38,7 @@ class AcEdReactor : public NcEditorReactor
 
         acedSSGetFirst(&prbGrip, &prbPick);
 
-        long gripLen, pickLen;
+        long pickLen;
 
         if (prbPick->restype != RTPICKS)
             return;
@@ -55,30 +53,26 @@ class AcEdReactor : public NcEditorReactor
             acdbGetObjectId(objId, entres);
 
             AcDbEntity* pEnt;
-            acdbOpenAcDbEntity(pEnt, objId, kForRead);
+            acdbOpenAcDbEntity(pEnt, objId, kForWrite);
 
             AcGePoint3dArray arrayPnts;
             AcDb3dPolyline* pCirc = AcDb3dPolyline::cast(pEnt);
 
             pWidgetChild->updateDataInTable(pCirc);
-            pWidgetChild->idForRefresh = objId;
-
             pEnt->close();
 
             if (pCirc == NULL)
                 continue;
 
-
+            pCirc->close();
 
         }
 
-        //acedSSFree(prbPick->resval.rlname);
-        
-       // acedSSFree(prbGrip->resval.rlname);
+        acedSSFree(prbPick->resval.rlname);
 
-        pWidgetChild->ui.pushButton->setVisible(false);
-        pWidgetChild->ui.pushButton_Update->setVisible(true);
+        acutRelRb(prbPick);
 
+        ncutPrintf(L"\nWorking Reactor END");
     }
 };
 

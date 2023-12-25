@@ -23,9 +23,7 @@ public:
   //static AcDbObjectId PostToModelSpace(AcDbEntity* pEnt);
   void PostToModelSpace(AcDbObjectId& objId, AcDbEntity* pEntity);
   AcDb3dPolyline* selectEntity(AcDbObjectId& eId, AcDb::OpenMode openMode);
-  void refreshPolyline(AcDbObjectId pId);
-  //Kostil
-  AcDbObjectId idForRefresh;
+  void refreshPolyline();
 
 private slots:
   void addCoordinate();
