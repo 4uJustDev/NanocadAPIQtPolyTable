@@ -34,6 +34,7 @@ public:
 private slots:
   void addCoordinate();
   void addRow();
+  void deleteRow();
   void acceptChanges();
 
 

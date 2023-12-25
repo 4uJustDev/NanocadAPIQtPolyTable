@@ -135,14 +135,12 @@ void helloQtPaletteCmd()
     QWidget* pPaletteWidget1 = pPal->paletteWidget();
 
     pWidgetChild = new HelloQtChild(pPaletteWidget1);
-
+    
     QVBoxLayout* vbox = new QVBoxLayout(pPaletteWidget1);
     vbox->setSpacing(0);
     vbox->setMargin(0);
     vbox->addWidget(pWidgetChild);
     vbox->addStretch();
-
-    //WId winId = le3->winId(); // Make Qt windows real HWND windows
 
     pPaletteWidget1->setLayout(vbox);
     pPaletteWidget1->show();
@@ -166,6 +164,10 @@ void initApp()
                           L"HELLOQTPALETTE",
                           ACRX_CMD_MODAL,
                           helloQtPaletteCmd);
+
+  testReactor = new AcEdReactor();
+  acedEditor->addReactor(testReactor);
+
   ObjectToNotify::rxInit();
   acrxBuildClassHierarchy();
 }
@@ -173,7 +175,11 @@ void initApp()
 void uninitApp()
 {
   acedRegCmds->removeGroup(L"HELLOQT_GROUP");
+
   deleteAcRxClass(ObjectToNotify::desc());
+
+  acedEditor->removeReactor(testReactor);
+  delete testReactor;
   if (m_pPalSet)
   {
     m_pPalSet->DestroyWindow();
@@ -190,14 +196,11 @@ acrxEntryPoint(AcRx::AppMsgCode msg, void* appId)
     acrxDynamicLinker->unlockApplication(appId);
     acrxDynamicLinker->registerAppMDIAware(appId);
 
-    testReactor = new AcEdReactor();
-    acedEditor->addReactor(testReactor);
     initApp();
     break;
 
   case AcRx::kUnloadAppMsg:
     uninitApp();
-    acedEditor->removeReactor(testReactor);
     break;
   }
 

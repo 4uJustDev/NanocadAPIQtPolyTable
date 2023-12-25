@@ -24,21 +24,25 @@ HelloQtChild::HelloQtChild(QWidget *parent) : QWidget(parent)
   QColor col1 = QColor::fromRgb(144, 238, 144);
   QColor col2 = QColor::fromRgb(163, 172, 238);
   QColor col3 = QColor::fromRgb(238, 236, 167);
+  QColor col4 = QColor::fromRgb(238, 133, 126);
 
   if (col1.isValid() && col2.isValid() && col3.isValid()) {
       QString qss1 = QString("background-color: %1").arg(col1.name());
       QString qss2 = QString("background-color: %1").arg(col2.name());
       QString qss3 = QString("background-color: %1").arg(col3.name());
+      QString qss4 = QString("background-color: %1").arg(col4.name());
 
       ui.pushButton->setStyleSheet(qss1);
       ui.pushButton_2->setStyleSheet(qss2);
       ui.pushButton_Update->setStyleSheet(qss3);
+      ui.pushButton_delete->setStyleSheet(qss4);
   }
 
 
   QObject::connect(ui.pushButton, SIGNAL(clicked()), this, SLOT(addCoordinate()));
   QObject::connect(ui.pushButton_2, SIGNAL(clicked()), this, SLOT(addRow()));
   QObject::connect(ui.pushButton_Update, SIGNAL(clicked()), this, SLOT(acceptChanges()));
+  QObject::connect(ui.pushButton_delete, SIGNAL(clicked()), this, SLOT(deleteRow()));
 }
 
 HelloQtChild::~HelloQtChild() {}
@@ -281,6 +285,11 @@ void HelloQtChild::addCoordinate()
 void HelloQtChild::addRow() {
     tableWidget->insertRow(tableWidget->rowCount());
 }
+void HelloQtChild::deleteRow() {
+    int row = this->tableWidget->currentRow();
+    this->tableWidget->removeRow(row);
+}
+
 
 void HelloQtChild::acceptChanges() {
    

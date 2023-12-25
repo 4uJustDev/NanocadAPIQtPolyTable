@@ -26,8 +26,10 @@ public:
     QVBoxLayout *verticalLayout;
     QPushButton *pushButton_Update;
     QPushButton *pushButton;
-    QVBoxLayout *verticalLayout_2;
+    QHBoxLayout *horizontalLayout_2;
+    QPushButton *pushButton_delete;
     QPushButton *pushButton_2;
+    QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout;
     QLineEdit *lineEdit;
     QComboBox *comboBox;
@@ -36,7 +38,7 @@ public:
     {
         if (HelloQtChildClass->objectName().isEmpty())
             HelloQtChildClass->setObjectName(QString::fromUtf8("HelloQtChildClass"));
-        HelloQtChildClass->resize(504, 561);
+        HelloQtChildClass->resize(359, 561);
         verticalLayout = new QVBoxLayout(HelloQtChildClass);
         verticalLayout->setSpacing(6);
         verticalLayout->setContentsMargins(11, 11, 11, 11);
@@ -51,14 +53,25 @@ public:
 
         verticalLayout->addWidget(pushButton);
 
-        verticalLayout_2 = new QVBoxLayout();
-        verticalLayout_2->setSpacing(6);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setSpacing(6);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        pushButton_delete = new QPushButton(HelloQtChildClass);
+        pushButton_delete->setObjectName(QString::fromUtf8("pushButton_delete"));
+
+        horizontalLayout_2->addWidget(pushButton_delete);
+
         pushButton_2 = new QPushButton(HelloQtChildClass);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
 
-        verticalLayout_2->addWidget(pushButton_2);
+        horizontalLayout_2->addWidget(pushButton_2);
 
+
+        verticalLayout->addLayout(horizontalLayout_2);
+
+        verticalLayout_2 = new QVBoxLayout();
+        verticalLayout_2->setSpacing(6);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
 
         verticalLayout->addLayout(verticalLayout_2);
 
@@ -94,6 +107,7 @@ public:
         HelloQtChildClass->setWindowTitle(QCoreApplication::translate("HelloQtChildClass", "HelloQtChild", nullptr));
         pushButton_Update->setText(QCoreApplication::translate("HelloQtChildClass", "\320\230\320\267\320\274\320\265\320\275\320\270\321\202\321\214", nullptr));
         pushButton->setText(QCoreApplication::translate("HelloQtChildClass", "\320\241\320\276\320\267\320\264\320\260\321\202\321\214", nullptr));
+        pushButton_delete->setText(QCoreApplication::translate("HelloQtChildClass", "Delete row", nullptr));
         pushButton_2->setText(QCoreApplication::translate("HelloQtChildClass", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214 \321\201\321\202\321\200\320\276\320\272\321\203", nullptr));
         comboBox->setItemText(0, QCoreApplication::translate("HelloQtChildClass", "Scientific", nullptr));
         comboBox->setItemText(1, QCoreApplication::translate("HelloQtChildClass", "Decimal", nullptr));
